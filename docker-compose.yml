@@ -1,0 +1,92 @@
+version: "3.2"
+services:
+    rabbitmq-server:
+        container_name: rabbitmq-server
+        image: rabbitmq
+        hostname: "rabbitmq-server"
+        environment:
+            RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
+            RABBITMQ_DEFAULT_USER: "guest"
+            RABBITMQ_DEFAULT_PASS: "guest"
+            RABBITMQ_DEFAULT_VHOST: "/"
+        ports:
+            - "15672:15672"
+            - "5672:5672"
+        labels:
+            NAME: "rabbitmq-server"
+
+#     python-order-service:
+#         container_name: python-order-service
+#         build: ./python-order-service
+#         # 'rabbitmq-server' will be available as a network reference inside this service 
+#         # and this service will start only after the RabbitMQ service has.
+#         depends_on:
+#             - rabbitmq-server
+#         # Keep it running.  
+#         tty: true
+#         # Map port 3000 on the host machine to port 3000 of the container.
+#         ports:
+#             - "3000:3000"
+#         volumes:
+#             - './python-order-service:/python-order-service'
+
+#     python-factory-service:
+#         container_name: python-factory-service
+#         build: ./python-factory-service
+#         # 'rabbitmq-server' will be available as a network reference inside this service 
+#         # and this service will start only after the RabbitMQ service has.
+#         depends_on:
+#             - rabbitmq-server
+#         # Keep it running.  
+#         tty: true
+#         # Map port 3001 on the host machine to port 3001 of the container.
+#         ports:
+#             - "3001:3001"
+#         volumes:
+#             - './python-factory-service:/python-factory-service'
+
+#     node-delivery-service:
+#         container_name: node-delivery-service
+#         build: ./node-delivery-service
+#         # 'rabbitmq-server' will be available as a network reference inside this service 
+#         # and this service will start only after the RabbitMQ service has.
+#         depends_on:
+#             - rabbitmq-server
+#         # Keep it running.  
+#         tty: true
+#         # Map port 3001 on the host machine to port 3001 of the container.
+#         ports:
+#             - "3002:3002"
+#         volumes:
+#             - './node-delivery-service:/node-delivery-service'
+
+#     redis:
+#         container_name: redis
+#         image: redis
+    
+#     postgres:
+#         container_name: postgres
+#         image: postgres
+#         restart: unless-stopped
+#         env_file:
+#           - ./postgres/postgres.env
+#         ports:
+#           - 5433:5433
+#         volumes:
+#           - ./postgres/volumes/postgres/data:/var/lib/postgresql/data
+
+#     portainer:
+#         container_name: portainer
+#         image: portainer/portainer
+#         restart: unless-stopped
+#         ports:
+#             - 9000:9000
+#         volumes:
+#             - /var/run/docker.sock:/var/run/docker.sock
+#             - ./portainer/volumes/portainer/data:/data
+        
+    
+# # Host volumes used to store code.
+# volumes:
+#     python-order-service:
+#     python-factory-service:
