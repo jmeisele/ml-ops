@@ -15,9 +15,53 @@ services:
         labels:
             NAME: "rabbitmq-server"
 
-#     python-order-service:
-#         container_name: python-order-service
-#         build: ./python-order-service
+    influxdb:
+        container_name: influxdb
+        image: "influxdb:latest"
+        restart: unless-stopped
+        ports:
+            - 8086:8086
+            - 8083:8083
+            - 2003:2003
+        env_file:
+            - ./services/influxdb/influxdb.env
+        volumes:
+            - ./volumes/influxdb/data:/var/lib/influxdb
+            - ./backups/influxdb/db:/var/lib/influxdb/backup
+
+    chronograf:
+        container_name: chronograf
+        depends_on:
+            - influxdb
+        image: chronograf:1.8.4-alpine
+        restart: unless-stopped
+        user: "0"
+        ports:
+            - 8888:8888
+        env_file:
+            - ./src/chronograf/chronograf.env
+        volumes:
+            - ./volumes/chronograf/data:/var/lib/chronograf
+            - ./volumes/chronograf/log:/var/log/chronograf
+
+    grafana:
+        container_name: grafana
+        depends_on:
+            - influxdb
+        image: grafana/grafana:6.3.6
+        restart: unless-stopped
+        user: "0"
+        ports:
+            - 3000:3000
+        env_file:
+            - ./src/grafana/grafana.env
+        volumes:
+            - ./volumes/grafana/data:/var/lib/grafana
+            - ./volumes/grafana/log:/var/log/grafana
+
+#     python-model-service:
+#         container_name: python-model-service
+#         build: ./python-model-service
 #         # 'rabbitmq-server' will be available as a network reference inside this service 
 #         # and this service will start only after the RabbitMQ service has.
 #         depends_on:
@@ -28,7 +72,7 @@ services:
 #         ports:
 #             - "3000:3000"
 #         volumes:
-#             - './python-order-service:/python-order-service'
+#             - './python-model-service:/python-model-service'
 
 #     python-factory-service:
 #         container_name: python-factory-service
