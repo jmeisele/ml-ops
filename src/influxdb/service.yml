@@ -1,0 +1,13 @@
+influxdb:
+container_name: influxdb
+image: "influxdb:latest"
+restart: unless-stopped
+ports:
+    - 8086:8086
+    - 8083:8083
+    - 2003:2003
+env_file:
+    - ./services/influxdb/influxdb.env
+volumes:
+    - ./volumes/influxdb/data:/var/lib/influxdb
+    - ./backups/influxdb/db:/var/lib/influxdb/backup
