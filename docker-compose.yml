@@ -1,8 +1,9 @@
 version: "3.2"
+
 services:
     rabbitmq-server:
         container_name: rabbitmq-server
-        image: rabbitmq
+        image: rabbitmq:3-management-alpine
         hostname: "rabbitmq-server"
         environment:
             RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
@@ -24,7 +25,7 @@ services:
             - 8083:8083
             - 2003:2003
         env_file:
-            - ./services/influxdb/influxdb.env
+            - ./src/influxdb/influxdb.env
         volumes:
             - ./volumes/influxdb/data:/var/lib/influxdb
             - ./backups/influxdb/db:/var/lib/influxdb/backup
@@ -59,20 +60,20 @@ services:
             - ./volumes/grafana/data:/var/lib/grafana
             - ./volumes/grafana/log:/var/log/grafana
 
-#     python-model-service:
-#         container_name: python-model-service
-#         build: ./python-model-service
-#         # 'rabbitmq-server' will be available as a network reference inside this service 
-#         # and this service will start only after the RabbitMQ service has.
-#         depends_on:
-#             - rabbitmq-server
-#         # Keep it running.  
-#         tty: true
-#         # Map port 3000 on the host machine to port 3000 of the container.
-#         ports:
-#             - "3000:3000"
-#         volumes:
-#             - './python-model-service:/python-model-service'
+    python-model-service:
+        container_name: python-model-service
+        build: ./src/python-model-service
+        # 'rabbitmq-server' will be available as a network reference inside this service 
+        # and this service will start only after the RabbitMQ service has.
+        depends_on:
+            - rabbitmq-server
+        # Keep it running.  
+        tty: true
+        # Map port 8888 on the host machine to port 3000 of the container.
+        ports:
+            - "8888:8088"
+        volumes:
+            - './src/python-model-service:/python-model-service'
 
 #     python-factory-service:
 #         container_name: python-factory-service
@@ -132,5 +133,4 @@ services:
     
 # # Host volumes used to store code.
 # volumes:
-#     python-order-service:
-#     python-factory-service:
+#     python-model-service:

@@ -1,9 +1,7 @@
 # MicroModel
 Handling MLOps as a microservices
 
-Demo of using Flask back end micro services loosely decoupled within docker containers.
-
-To install:
+__To install__:
 
 1. Clone the project
     ```bash
