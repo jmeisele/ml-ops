@@ -74,7 +74,98 @@ services:
             - "8088:8088"
         volumes:
             - './src/python-model-service:/python-model-service'
+    
+    webserver:
+        image: puckel/docker-airflow:1.10.9
+        restart: always
+        depends_on:
+            - postgres
+            - redis
+        environment:
+            - LOAD_EX=n
+            - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
+            - EXECUTOR=Celery
+            - POSTGRES_USER=airflow
+            - POSTGRES_PASSWORD=airflow
+            - POSTGRES_DB=airflow
+            # - REDIS_PASSWORD=redispass
+        volumes:
+            - ./dags:/usr/local/airflow/dags
+            # Uncomment to include custom plugins
+            # - ./plugins:/usr/local/airflow/plugins
+        ports:
+            - "8080:8080"
+        command: webserver
+        healthcheck:
+            test: ["CMD-SHELL", "[ -f /usr/local/airflow/airflow-webserver.pid ]"]
+            interval: 30s
+            timeout: 30s
+            retries: 3
 
+    flower:
+        image: puckel/docker-airflow:1.10.9
+        restart: always
+        depends_on:
+            - redis
+        environment:
+            - EXECUTOR=Celery
+            # - REDIS_PASSWORD=redispass
+        ports:
+            - "5555:5555"
+        command: flower
+
+    scheduler:
+        image: puckel/docker-airflow:1.10.9
+        restart: always
+        depends_on:
+            - webserver
+        volumes:
+            - ./dags:/usr/local/airflow/dags
+            # Uncomment to include custom plugins
+            # - ./plugins:/usr/local/airflow/plugins
+        environment:
+            - LOAD_EX=n
+            - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
+            - EXECUTOR=Celery
+            - POSTGRES_USER=airflow
+            - POSTGRES_PASSWORD=airflow
+            - POSTGRES_DB=airflow
+            # - REDIS_PASSWORD=redispass
+        command: scheduler
+
+    worker:
+        image: puckel/docker-airflow:1.10.9
+        restart: always
+        depends_on:
+            - scheduler
+        volumes:
+            - ./dags:/usr/local/airflow/dags
+            # Uncomment to include custom plugins
+            # - ./plugins:/usr/local/airflow/plugins
+        environment:
+            - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
+            - EXECUTOR=Celery
+            - POSTGRES_USER=airflow
+            - POSTGRES_PASSWORD=airflow
+            - POSTGRES_DB=airflow
+            # - REDIS_PASSWORD=redispass
+        command: worker
+
+    postgres:
+        container_name: postgres
+        image: postgres
+        restart: unless-stopped
+        env_file:
+            - ./src/postgres/postgres.env
+        ports:
+            - 5432:5432
+        volumes:
+            - ./postgres/volumes/postgres/data:/var/lib/postgresql/data
+
+    redis:
+        container_name: redis
+        image: redis
+        
 #     python-factory-service:
 #         container_name: python-factory-service
 #         build: ./python-factory-service
@@ -105,20 +196,7 @@ services:
 #         volumes:
 #             - './node-delivery-service:/node-delivery-service'
 
-#     redis:
-#         container_name: redis
-#         image: redis
     
-#     postgres:
-#         container_name: postgres
-#         image: postgres
-#         restart: unless-stopped
-#         env_file:
-#           - ./postgres/postgres.env
-#         ports:
-#           - 5433:5433
-#         volumes:
-#           - ./postgres/volumes/postgres/data:/var/lib/postgresql/data
 
 #     portainer:
 #         container_name: portainer
