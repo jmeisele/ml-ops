@@ -69,9 +69,9 @@ services:
             - rabbitmq-server
         # Keep it running.  
         tty: true
-        # Map port 8888 on the host machine to port 3000 of the container.
+        # Map port 8088 on the host machine to port 3000 of the container.
         ports:
-            - "8888:8088"
+            - "8088:8088"
         volumes:
             - './src/python-model-service:/python-model-service'
 
