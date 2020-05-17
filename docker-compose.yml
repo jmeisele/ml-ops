@@ -28,7 +28,7 @@ services:
             - ./src/influxdb/influxdb.env
         volumes:
             - ./volumes/influxdb/data:/var/lib/influxdb
-            - ./backups/influxdb/db:/var/lib/influxdb/backup
+            - ./src/influxdb/backups/influxdb/db:/var/lib/influxdb/backup
 
     chronograf:
         container_name: chronograf
@@ -88,9 +88,9 @@ services:
             - POSTGRES_USER=airflow
             - POSTGRES_PASSWORD=airflow
             - POSTGRES_DB=airflow
-            # - REDIS_PASSWORD=redispass
+            - REDIS_PASSWORD=redispass
         volumes:
-            - ./dags:/usr/local/airflow/dags
+            - ./src/airflow/dags:/usr/local/airflow/dags
             # Uncomment to include custom plugins
             # - ./plugins:/usr/local/airflow/plugins
         ports:
@@ -109,7 +109,7 @@ services:
             - redis
         environment:
             - EXECUTOR=Celery
-            # - REDIS_PASSWORD=redispass
+            - REDIS_PASSWORD=redispass
         ports:
             - "5555:5555"
         command: flower
@@ -120,7 +120,7 @@ services:
         depends_on:
             - webserver
         volumes:
-            - ./dags:/usr/local/airflow/dags
+            - ./src/airflow/dags:/usr/local/airflow/dags
             # Uncomment to include custom plugins
             # - ./plugins:/usr/local/airflow/plugins
         environment:
@@ -130,7 +130,7 @@ services:
             - POSTGRES_USER=airflow
             - POSTGRES_PASSWORD=airflow
             - POSTGRES_DB=airflow
-            # - REDIS_PASSWORD=redispass
+            - REDIS_PASSWORD=redispass
         command: scheduler
 
     worker:
@@ -139,7 +139,7 @@ services:
         depends_on:
             - scheduler
         volumes:
-            - ./dags:/usr/local/airflow/dags
+            - ./src/airflow/dags:/usr/local/airflow/dags
             # Uncomment to include custom plugins
             # - ./plugins:/usr/local/airflow/plugins
         environment:
@@ -148,24 +148,46 @@ services:
             - POSTGRES_USER=airflow
             - POSTGRES_PASSWORD=airflow
             - POSTGRES_DB=airflow
-            # - REDIS_PASSWORD=redispass
+            - REDIS_PASSWORD=redispass
         command: worker
+
+    # postgres:
+    #     container_name: postgres
+    #     image: postgres
+    #     restart: unless-stopped
+    #     env_file:
+    #         - ./src/postgres/postgres.env
+    #     ports:
+    #         - 5432:5432
+    #     volumes:
+    #         - ./postgres/volumes/postgres/data:/var/lib/postgresql/data
 
     postgres:
         container_name: postgres
         image: postgres
-        restart: unless-stopped
-        env_file:
-            - ./src/postgres/postgres.env
-        ports:
-            - 5432:5432
-        volumes:
-            - ./postgres/volumes/postgres/data:/var/lib/postgresql/data
+        environment:
+            - POSTGRES_USER=airflow
+            - POSTGRES_PASSWORD=airflow
+            - POSTGRES_DB=airflow
+        # Uncomment these lines to persist data on the local filesystem.
+        #     - PGDATA=/var/lib/postgresql/data/pgdata
+        # volumes:
+        #     - ./pgdata:/var/lib/postgresql/data/pgdata
 
     redis:
         container_name: redis
         image: redis
-        
+        command: redis-server --requirepass redispass
+
+    portainer:
+        container_name: portainer
+        image: portainer/portainer
+        restart: unless-stopped
+        ports:
+            - 9000:9000
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - ./src/portainer/volumes/portainer/data:/data
 #     python-factory-service:
 #         container_name: python-factory-service
 #         build: ./python-factory-service
@@ -196,17 +218,6 @@ services:
 #         volumes:
 #             - './node-delivery-service:/node-delivery-service'
 
-    
-
-#     portainer:
-#         container_name: portainer
-#         image: portainer/portainer
-#         restart: unless-stopped
-#         ports:
-#             - 9000:9000
-#         volumes:
-#             - /var/run/docker.sock:/var/run/docker.sock
-#             - ./portainer/volumes/portainer/data:/data
         
     
 # # Host volumes used to store code.
