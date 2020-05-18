@@ -15,7 +15,12 @@ services:
             - "5672:5672"
         labels:
             NAME: "rabbitmq-server"
-
+    
+    mlflow:
+        container_name: mlflow
+        build: ./src/mlflow
+        restart: unless-stopped
+    
     influxdb:
         container_name: influxdb
         image: "influxdb:latest"

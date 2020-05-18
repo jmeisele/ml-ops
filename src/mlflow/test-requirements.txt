@@ -1,0 +1,3 @@
+-r travis/small-requirements.txt
+-r travis/large-requirements.txt
+-r travis/lint-requirements.txt

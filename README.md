@@ -1,5 +1,5 @@
 # MicroModel
-Handling MLOps as a microservices
+Handling MLOps as a microservice
 
 __To install__:
 
