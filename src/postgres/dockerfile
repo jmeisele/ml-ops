@@ -1,0 +1,7 @@
+FROM postgres
+
+# Initialization SQL scripts 
+COPY ./mlflow.sql /docker-entrypoint-initdb.d/mlflow.sql
+RUN chmod +x /docker-entrypoint-initdb.d/mlflow.sql
+
+EXPOSE 5432

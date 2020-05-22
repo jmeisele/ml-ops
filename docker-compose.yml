@@ -1,6 +1,40 @@
 version: "3.2"
 
 services:
+    # postgres:
+    #     container_name: postgres
+    #     # image: postgres
+    #     build: ./src/postgres
+    #     # env_file:
+    #     #     - ./src/postgres/postgres.env
+    #     environment:
+    #         - POSTGRES_USER=airflow
+    #         - POSTGRES_PASSWORD=airflow
+    #         - POSTGRES_DB=airflow
+    #         # - MLFLOW_USER=mlflow
+    #         # - MLFLOW_PASSWORD=metadata
+    #         # - MLFLOW_DB=mlflow
+    #     hostname: "postgres"
+    #     ports:
+    #         - "5432:5432"
+    #     # Uncomment these lines to persist data on the local filesystem.
+    #     #     - PGDATA=/var/lib/postgresql/data/pgdata
+    #     # volumes:
+    #     #     - ./pgdata:/var/lib/postgresql/data/pgdata
+
+    postgres:
+        container_name: postgres
+        # image: postgres
+        build: ./src/postgres
+        restart: unless-stopped
+        hostname: "postgres"
+        env_file:
+            - ./src/postgres/postgres.env
+        ports:
+            - 5432:5432
+        volumes:
+            - ./volumes/postgres/data:/var/lib/postgresql/data
+
     rabbitmq-server:
         container_name: rabbitmq-server
         image: rabbitmq:3-management-alpine
@@ -17,9 +51,15 @@ services:
             NAME: "rabbitmq-server"
     
     mlflow:
-        container_name: mlflow
+        container_name: mlflow-server
         build: ./src/mlflow
         restart: unless-stopped
+        image: mlflow_server 
+        ports: 
+            - "5000:5000"
+        command: 
+            # mlflow server --backend-store-uri postgresql://mlflow:metadata@postgres/mlflow --default-artifact-root s3://shiptmlflowbucket/mlflow --host 0.0.0.0 -p 5000
+            mlflow server --default-artifact-root s3://shiptmlflowbucket/mlflow -p 5000 --host 0.0.0.0
     
     influxdb:
         container_name: influxdb
@@ -65,22 +105,54 @@ services:
             - ./volumes/grafana/data:/var/lib/grafana
             - ./volumes/grafana/log:/var/log/grafana
 
-    python-model-service:
-        container_name: python-model-service
+    #Nginx Service
+    # nginx:
+    #     image: nginx:alpine
+    #     container_name: nginx
+    #     restart: unless-stopped
+    #     tty: true
+    #     ports:
+    #     - "80:80"
+    #     - "443:443"
+    #     volumes: 
+    #         - ./src/nginx.conf:/etc/ngimnx/nginx.conf
+    #     # networks:
+    #     # - app-network
+
+    python-model-service1:
+        container_name: python-model-service1
         build: ./src/python-model-service
         # 'rabbitmq-server' will be available as a network reference inside this service 
         # and this service will start only after the RabbitMQ service has.
         depends_on:
             - rabbitmq-server
+            # - nginx
         # Keep it running.  
         tty: true
-        # Map port 8088 on the host machine to port 3000 of the container.
+        # Map port 8000 on the host machine to port 8000 of the container.
         ports:
-            - "8088:8088"
+            - "8000:8000"
         volumes:
-            - './src/python-model-service:/python-model-service'
+            - ./src/python-model-service:/python-model-service
+
+    python-model-service2:
+        container_name: python-model-service2
+        build: ./src/python-model-service
+        # 'rabbitmq-server' will be available as a network reference inside this service 
+        # and this service will start only after the RabbitMQ service has.
+        depends_on:
+            - rabbitmq-server
+            # - nginx
+        # Keep it running.  
+        tty: true
+        # Map port 8000 on the host machine to port 8000 of the container.
+        ports:
+            - "8001:8000"
+        volumes:
+            - ./src/python-model-service:/python-model-service
     
     webserver:
+        container_name: airflow-webserver
         image: puckel/docker-airflow:1.10.9
         restart: always
         depends_on:
@@ -108,6 +180,7 @@ services:
             retries: 3
 
     flower:
+        container_name: airflow-flower
         image: puckel/docker-airflow:1.10.9
         restart: always
         depends_on:
@@ -120,6 +193,7 @@ services:
         command: flower
 
     scheduler:
+        container_name: airlfow-scheduler
         image: puckel/docker-airflow:1.10.9
         restart: always
         depends_on:
@@ -139,6 +213,7 @@ services:
         command: scheduler
 
     worker:
+        container_name: airflow-worker
         image: puckel/docker-airflow:1.10.9
         restart: always
         depends_on:
@@ -156,29 +231,6 @@ services:
             - REDIS_PASSWORD=redispass
         command: worker
 
-    # postgres:
-    #     container_name: postgres
-    #     image: postgres
-    #     restart: unless-stopped
-    #     env_file:
-    #         - ./src/postgres/postgres.env
-    #     ports:
-    #         - 5432:5432
-    #     volumes:
-    #         - ./postgres/volumes/postgres/data:/var/lib/postgresql/data
-
-    postgres:
-        container_name: postgres
-        image: postgres
-        environment:
-            - POSTGRES_USER=airflow
-            - POSTGRES_PASSWORD=airflow
-            - POSTGRES_DB=airflow
-        # Uncomment these lines to persist data on the local filesystem.
-        #     - PGDATA=/var/lib/postgresql/data/pgdata
-        # volumes:
-        #     - ./pgdata:/var/lib/postgresql/data/pgdata
-
     redis:
         container_name: redis
         image: redis
@@ -193,36 +245,6 @@ services:
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
             - ./volumes/portainer/data:/data
-#     python-factory-service:
-#         container_name: python-factory-service
-#         build: ./python-factory-service
-#         # 'rabbitmq-server' will be available as a network reference inside this service 
-#         # and this service will start only after the RabbitMQ service has.
-#         depends_on:
-#             - rabbitmq-server
-#         # Keep it running.  
-#         tty: true
-#         # Map port 3001 on the host machine to port 3001 of the container.
-#         ports:
-#             - "3001:3001"
-#         volumes:
-#             - './python-factory-service:/python-factory-service'
-
-#     node-delivery-service:
-#         container_name: node-delivery-service
-#         build: ./node-delivery-service
-#         # 'rabbitmq-server' will be available as a network reference inside this service 
-#         # and this service will start only after the RabbitMQ service has.
-#         depends_on:
-#             - rabbitmq-server
-#         # Keep it running.  
-#         tty: true
-#         # Map port 3001 on the host machine to port 3001 of the container.
-#         ports:
-#             - "3002:3002"
-#         volumes:
-#             - './node-delivery-service:/node-delivery-service'
-
         
     
 # # Host volumes used to store code.

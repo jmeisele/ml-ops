@@ -5,6 +5,6 @@ WORKDIR /python-model-service
 RUN apk update
 RUN apk add make automake gcc g++ subversion python3-dev
 RUN pip3 install -r requirements.txt 
-EXPOSE 8088 
+EXPOSE 8000 
 ENTRYPOINT [ "python" ] 
 CMD [ "app.py" ]  
