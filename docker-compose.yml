@@ -26,7 +26,7 @@ services:
         container_name: postgres
         # image: postgres
         build: ./src/postgres
-        restart: unless-stopped
+        restart: always
         hostname: "postgres"
         env_file:
             - ./src/postgres/postgres.env
@@ -36,6 +36,7 @@ services:
             - ./volumes/postgres/data:/var/lib/postgresql/data
 
     rabbitmq-server:
+        restart: always
         container_name: rabbitmq-server
         image: rabbitmq:3-management-alpine
         hostname: "rabbitmq-server"
@@ -53,7 +54,7 @@ services:
     mlflow:
         container_name: mlflow-server
         build: ./src/mlflow
-        restart: unless-stopped
+        restart: always
         image: mlflow_server 
         ports: 
             - "5000:5000"
@@ -64,7 +65,7 @@ services:
     influxdb:
         container_name: influxdb
         image: "influxdb:latest"
-        restart: unless-stopped
+        restart: always
         ports:
             - 8086:8086
             - 8083:8083
@@ -76,11 +77,11 @@ services:
             - ./src/influxdb/backups/influxdb/db:/var/lib/influxdb/backup
 
     chronograf:
+        restart: always
         container_name: chronograf
         depends_on:
             - influxdb
         image: chronograf:1.8.4-alpine
-        restart: unless-stopped
         user: "0"
         ports:
             - 8888:8888
@@ -95,7 +96,7 @@ services:
         depends_on:
             - influxdb
         image: grafana/grafana:6.3.6
-        restart: unless-stopped
+        restart: always
         user: "0"
         ports:
             - 3000:3000
@@ -105,11 +106,10 @@ services:
             - ./volumes/grafana/data:/var/lib/grafana
             - ./volumes/grafana/log:/var/log/grafana
 
-    #Nginx Service
     # nginx:
-    #     image: nginx:alpine
     #     container_name: nginx
-    #     restart: unless-stopped
+    #     build: ./src/nginx
+    #     restart: always
     #     tty: true
     #     ports:
     #     - "80:80"
@@ -120,6 +120,7 @@ services:
     #     # - app-network
 
     python-model-service1:
+        restart: always
         container_name: python-model-service1
         build: ./src/python-model-service
         # 'rabbitmq-server' will be available as a network reference inside this service 
@@ -136,6 +137,7 @@ services:
             - ./src/python-model-service:/python-model-service
 
     python-model-service2:
+        restart: always
         container_name: python-model-service2
         build: ./src/python-model-service
         # 'rabbitmq-server' will be available as a network reference inside this service 
@@ -152,9 +154,9 @@ services:
             - ./src/python-model-service:/python-model-service
     
     webserver:
+        restart: always
         container_name: airflow-webserver
         image: puckel/docker-airflow:1.10.9
-        restart: always
         depends_on:
             - postgres
             - redis
@@ -239,7 +241,7 @@ services:
     portainer:
         container_name: portainer
         image: portainer/portainer
-        restart: unless-stopped
+        restart: always
         ports:
             - 9000:9000
         volumes:
