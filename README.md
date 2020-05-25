@@ -13,7 +13,7 @@ __To install__:
     ```
 3. Run docker compose
     ```bash
-    docker-compose up
+    docker-compose up --build
     ```
 4. Open up a new terminal window and send a POST request to our model service API endpoint
     ```bash

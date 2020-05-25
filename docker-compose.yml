@@ -24,10 +24,8 @@ services:
 
     postgres:
         container_name: postgres
-        # image: postgres
         build: ./src/postgres
         restart: always
-        hostname: "postgres"
         env_file:
             - ./src/postgres/postgres.env
         ports:
@@ -39,7 +37,6 @@ services:
         restart: always
         container_name: rabbitmq-server
         image: rabbitmq:3-management-alpine
-        hostname: "rabbitmq-server"
         environment:
             RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
             RABBITMQ_DEFAULT_USER: "guest"
@@ -72,9 +69,9 @@ services:
             - 2003:2003
         env_file:
             - ./src/influxdb/influxdb.env
-        volumes:
-            - ./volumes/influxdb/data:/var/lib/influxdb
-            - ./src/influxdb/backups/influxdb/db:/var/lib/influxdb/backup
+        # volumes:
+        #     - ./volumes/influxdb/data:/var/lib/influxdb
+        #     - ./src/influxdb/backups/influxdb/db:/var/lib/influxdb/backup
 
     chronograf:
         restart: always
@@ -87,9 +84,9 @@ services:
             - 8888:8888
         env_file:
             - ./src/chronograf/chronograf.env
-        volumes:
-            - ./volumes/chronograf/data:/var/lib/chronograf
-            - ./volumes/chronograf/log:/var/log/chronograf
+        # volumes:
+        #     - ./volumes/chronograf/data:/var/lib/chronograf
+        #     - ./volumes/chronograf/log:/var/log/chronograf
 
     grafana:
         container_name: grafana
@@ -102,18 +99,18 @@ services:
             - 3000:3000
         env_file:
             - ./src/grafana/grafana.env
-        volumes:
-            - ./volumes/grafana/data:/var/lib/grafana
-            - ./volumes/grafana/log:/var/log/grafana
+        # volumes:
+        #     - ./volumes/grafana/data:/var/lib/grafana
+        #     - ./volumes/grafana/log:/var/log/grafana
 
-    # nginx:
-    #     container_name: nginx
-    #     build: ./src/nginx
-    #     restart: always
-    #     tty: true
-    #     ports:
-    #     - "80:80"
-    #     - "443:443"
+    nginx:
+        container_name: nginx
+        build: ./src/nginx
+        restart: always
+        tty: true
+        ports:
+        - "80:80"
+        - "443:443"
     #     volumes: 
     #         - ./src/nginx.conf:/etc/ngimnx/nginx.conf
     #     # networks:
@@ -122,36 +119,36 @@ services:
     python-model-service1:
         restart: always
         container_name: python-model-service1
-        build: ./src/python-model-service
+        build: ./src/python-model-service-1
         # 'rabbitmq-server' will be available as a network reference inside this service 
         # and this service will start only after the RabbitMQ service has.
         depends_on:
             - rabbitmq-server
-            # - nginx
+            - nginx
         # Keep it running.  
         tty: true
         # Map port 8000 on the host machine to port 8000 of the container.
         ports:
             - "8000:8000"
-        volumes:
-            - ./src/python-model-service:/python-model-service
+        # volumes:
+        #     - ./src/python-model-service:/python-model-service
 
     python-model-service2:
         restart: always
         container_name: python-model-service2
-        build: ./src/python-model-service
+        build: ./src/python-model-service-2
         # 'rabbitmq-server' will be available as a network reference inside this service 
         # and this service will start only after the RabbitMQ service has.
         depends_on:
             - rabbitmq-server
-            # - nginx
+            - nginx
         # Keep it running.  
         tty: true
         # Map port 8000 on the host machine to port 8000 of the container.
         ports:
-            - "8001:8000"
-        volumes:
-            - ./src/python-model-service:/python-model-service
+            - "8001:8001"
+        # volumes:
+        #     - ./src/python-model-service:/python-model-service
     
     webserver:
         restart: always
@@ -248,7 +245,3 @@ services:
             - /var/run/docker.sock:/var/run/docker.sock
             - ./volumes/portainer/data:/data
         
-    
-# # Host volumes used to store code.
-# volumes:
-#     python-model-service:
