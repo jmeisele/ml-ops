@@ -8,7 +8,7 @@ app = Flask(__name__)
 
 @app.route('/', methods = ['GET'])
 def index():
-    return '<h1>Hello from docker compose model service!</h1>'
+    return '<h1>Hello from docker compose model service #1!</h1>'
 
 # @app.route('/predict', methods=['POST'])
 # def make_prediction():

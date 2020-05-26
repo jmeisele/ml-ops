@@ -25,7 +25,7 @@ __To install__:
     ``` -->
 6. This sends a message to the queue being managed by our RabbitMQ broker for the Python factory service to build
 
-_ProTip_ Check the status/health of all running containers using Portainer
+__ProTip__ Check the status/health of all running containers using Portainer
 
 [Portainer](http://localhost:9000)
 
