@@ -30,8 +30,8 @@ services:
             - ./src/postgres/postgres.env
         ports:
             - 5432:5432
-        volumes:
-            - ./volumes/postgres/data:/var/lib/postgresql/data
+        # volumes:
+        #     - ./volumes/postgres/data:/var/lib/postgresql/data
 
     rabbitmq-server:
         restart: always
@@ -118,37 +118,33 @@ services:
 
     python-model-service1:
         restart: always
-        container_name: python-model-service1
-        build: ./src/python-model-service-1
-        # 'rabbitmq-server' will be available as a network reference inside this service 
-        # and this service will start only after the RabbitMQ service has.
-        depends_on:
-            - rabbitmq-server
-            - nginx
-        # Keep it running.  
-        tty: true
+        container_name: python-service-1
+        build:
+            context: ./src/python-model-service-1
+            dockerfile: dockerfile
+        # depends_on:
+        #     - rabbitmq-server
+        #     - nginx
         # Map port 8000 on the host machine to port 8000 of the container.
         ports:
             - "8000:8000"
         # volumes:
-        #     - ./src/python-model-service:/python-model-service
+        #     - ./src/python-model-service-1:/python-model-service-1
 
     python-model-service2:
         restart: always
-        container_name: python-model-service2
-        build: ./src/python-model-service-2
-        # 'rabbitmq-server' will be available as a network reference inside this service 
-        # and this service will start only after the RabbitMQ service has.
-        depends_on:
-            - rabbitmq-server
-            - nginx
-        # Keep it running.  
-        tty: true
-        # Map port 8000 on the host machine to port 8000 of the container.
+        container_name: python-service-2
+        build: 
+            context: ./src/python-model-service-2
+            dockerfile: dockerfile
+        # depends_on:
+        #     - rabbitmq-server
+        #     - nginx
+        # Map port 8001 on the host machine to port 8001 of the container.
         ports:
             - "8001:8001"
         # volumes:
-        #     - ./src/python-model-service:/python-model-service
+        #     - ./src/python-model-service-2:/python-model-service-2
     
     webserver:
         restart: always
@@ -197,10 +193,10 @@ services:
         restart: always
         depends_on:
             - webserver
-        volumes:
-            - ./src/airflow/dags:/usr/local/airflow/dags
-            # Uncomment to include custom plugins
-            # - ./plugins:/usr/local/airflow/plugins
+        # volumes:
+        #     - ./src/airflow/dags:/usr/local/airflow/dags
+        # Uncomment to include custom plugins
+        # - ./plugins:/usr/local/airflow/plugins
         environment:
             - LOAD_EX=n
             - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
@@ -217,8 +213,8 @@ services:
         restart: always
         depends_on:
             - scheduler
-        volumes:
-            - ./src/airflow/dags:/usr/local/airflow/dags
+        # volumes:
+        #     - ./src/airflow/dags:/usr/local/airflow/dags
             # Uncomment to include custom plugins
             # - ./plugins:/usr/local/airflow/plugins
         environment:
@@ -240,8 +236,8 @@ services:
         image: portainer/portainer
         restart: always
         ports:
-            - 9000:9000
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-            - ./volumes/portainer/data:/data
+            - "9000:9000"
+        # volumes:
+        #     - /var/run/docker.sock:/var/run/docker.sock
+        #     - ./volumes/portainer/data:/data
         

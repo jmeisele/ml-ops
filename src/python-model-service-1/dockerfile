@@ -1,10 +1,11 @@
-FROM python:alpine3.7 
-RUN mkdir /python-model-service
-COPY . /python-model-service
-WORKDIR /python-model-service
-RUN apk update
-RUN apk add make automake gcc g++ subversion python3-dev
+FROM python:stretch 
+
+COPY . /python-model-service-1
+
+WORKDIR /python-model-service-1
+
 RUN pip3 install -r requirements.txt 
+
 EXPOSE 8000 
-ENTRYPOINT [ "python" ] 
-CMD [ "app.py" ]  
+
+CMD ["python3", "app.py" ]  
