@@ -5,7 +5,9 @@ services:
         container_name: nginx
         build: ./src/nginx
         restart: always
-        tty: true
+        depends_on: 
+            - python-model-service1
+            - python-model-service2
         ports:
         - "80:80"
         - "443:443"
