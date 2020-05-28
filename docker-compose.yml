@@ -114,8 +114,16 @@ services:
         # volumes:
         #     - ./volumes/grafana/data:/var/lib/grafana
         #     - ./volumes/grafana/log:/var/log/grafana
-
     
+    # telegraf:
+    #     container_name: telegraf
+    #     restart: always
+    #     build: ./src/telegraf
+    #     ports: 
+    #         - "8086:8086"
+    #     depends_on: 
+    #         - influxdb
+
     webserver:
         restart: always
         container_name: airflow-webserver
