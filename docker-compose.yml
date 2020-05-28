@@ -5,7 +5,9 @@ services:
         container_name: nginx
         build: ./src/nginx
         restart: always
-        tty: true
+        depends_on: 
+            - python-model-service1
+            - python-model-service2
         ports:
         - "80:80"
         - "443:443"
@@ -112,8 +114,16 @@ services:
         # volumes:
         #     - ./volumes/grafana/data:/var/lib/grafana
         #     - ./volumes/grafana/log:/var/log/grafana
-
     
+    # telegraf:
+    #     container_name: telegraf
+    #     restart: always
+    #     build: ./src/telegraf
+    #     ports: 
+    #         - "8086:8086"
+    #     depends_on: 
+    #         - influxdb
+
     webserver:
         restart: always
         container_name: airflow-webserver

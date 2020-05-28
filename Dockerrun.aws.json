@@ -1,0 +1,30 @@
+{
+    "AWSEBDockerrunVersion": 2,
+    "containerDefinitions": [
+        {
+            "name": "python-service-1",
+            "image": "jmeisele/flask_app1",
+            "hostname": "python-service-1",
+            "essential": false
+        },
+        {
+            "name": "python-service-2",
+            "image": "jmeisele/flask_app2",
+            "hostname": "python-service-2",
+            "essential": false
+        },
+        {
+            "name": "nginx",
+            "image": "jmeisele/flask_nginx",
+            "hostname": "nginx",
+            "essential": true,
+            "portMappings": [
+                {
+                    "hostPort": 80,
+                    "containerPort": 80
+                }
+            ],
+            "links": ["python-service-1", "python-service-2"]
+        }
+    ]
+}
