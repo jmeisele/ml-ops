@@ -19,7 +19,7 @@ services:
         container_name: python-service-1
         build:
             context: ./src/python-model-service-1
-            dockerfile: dockerfile
+            dockerfile: Dockerfile
         ports:
             - "8000:8000"
         # volumes:
@@ -30,7 +30,7 @@ services:
         container_name: python-service-2
         build: 
             context: ./src/python-model-service-2
-            dockerfile: dockerfile
+            dockerfile: Dockerfile
         ports:
             - "8001:8001"
     #     # volumes:
@@ -119,8 +119,6 @@ services:
     #     container_name: telegraf
     #     restart: always
     #     build: ./src/telegraf
-    #     ports: 
-    #         - "8086:8086"
     #     depends_on: 
     #         - influxdb
 

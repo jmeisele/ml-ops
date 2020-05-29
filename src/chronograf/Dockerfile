@@ -26,7 +26,8 @@ RUN set -ex && \
     rm -rf *.tar.gz* /usr/src /root/.gnupg && \
     apk del .build-deps
 
-COPY LICENSE /usr/share/chronograf/LICENSE
+COPY ./LICENSE /usr/share/chronograf/LICENSE
+
 COPY agpl-3.0.md /usr/share/chronograf/agpl-3.0.md
 
 EXPOSE 8888

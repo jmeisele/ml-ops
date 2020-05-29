@@ -1,19 +1,45 @@
-ARG BASE_IMAGE=alpine:3.11
-FROM ${BASE_IMAGE}
+FROM node:12.16.3-alpine3.11 as js-builder
 
-ARG GRAFANA_TGZ="grafana-latest.linux-x64-musl.tar.gz"
+WORKDIR /usr/src/app/
 
-COPY ${GRAFANA_TGZ} /tmp/grafana.tar.gz
+COPY package.json yarn.lock ./
+COPY packages packages
 
-# Change to tar xfzv to make tar print every file it extracts
-RUN mkdir /tmp/grafana && tar xfz /tmp/grafana.tar.gz --strip-components=1 -C /tmp/grafana
+RUN yarn install --pure-lockfile --no-progress
 
-FROM ${BASE_IMAGE}
+COPY Gruntfile.js tsconfig.json .eslintrc .editorconfig .browserslistrc .prettierrc.js ./
+COPY public public
+COPY tools tools
+COPY scripts scripts
+COPY emails emails
+
+ENV NODE_ENV production
+RUN ./node_modules/.bin/grunt build
+
+FROM golang:1.14.2-alpine3.11 as go-builder
+
+RUN apk add --no-cache gcc g++
+
+WORKDIR $GOPATH/src/github.com/grafana/grafana
+
+COPY go.mod go.sum ./
+
+RUN go mod verify
+
+COPY pkg pkg
+COPY build.go package.json ./
+
+RUN go run build.go build
+
+# Final stage
+FROM alpine:3.11
+
+LABEL maintainer="Grafana team <hello@grafana.com>"
 
 ARG GF_UID="472"
 ARG GF_GID="472"
 
-ENV PATH=/usr/share/grafana/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
+ENV PATH="/usr/share/grafana/bin:$PATH" \
     GF_PATHS_CONFIG="/etc/grafana/grafana.ini" \
     GF_PATHS_DATA="/var/lib/grafana" \
     GF_PATHS_HOME="/usr/share/grafana" \
@@ -26,22 +52,7 @@ WORKDIR $GF_PATHS_HOME
 RUN apk add --no-cache ca-certificates bash tzdata && \
     apk add --no-cache --upgrade openssl musl-utils
 
-# Oracle Support for x86_64 only
-RUN if [ `arch` = "x86_64" ]; then \
-      apk add --no-cache --upgrade libaio libnsl && \
-      ln -s /usr/lib/libnsl.so.2 /usr/lib/libnsl.so.1 && \
-      wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.30-r0/glibc-2.30-r0.apk \
-        -O /tmp/glibc-2.30-r0.apk && \
-      wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.30-r0/glibc-bin-2.30-r0.apk \
-        -O /tmp/glibc-bin-2.30-r0.apk && \
-      apk add --allow-untrusted /tmp/glibc-2.30-r0.apk /tmp/glibc-bin-2.30-r0.apk && \
-      rm -f /tmp/glibc-2.30-r0.apk && \
-      rm -f /tmp/glibc-bin-2.30-r0.apk && \
-      rm -f /lib/ld-linux-x86-64.so.2 && \
-      rm -f /etc/ld.so.cache; \
-    fi
-
-COPY --from=0 /tmp/grafana "$GF_PATHS_HOME"
+COPY conf ./conf
 
 RUN mkdir -p "$GF_PATHS_HOME/.aws" && \
     addgroup -S -g $GF_GID grafana && \
@@ -57,9 +68,13 @@ RUN mkdir -p "$GF_PATHS_HOME/.aws" && \
     chown -R grafana:grafana "$GF_PATHS_DATA" "$GF_PATHS_HOME/.aws" "$GF_PATHS_LOGS" "$GF_PATHS_PLUGINS" "$GF_PATHS_PROVISIONING" && \
     chmod -R 777 "$GF_PATHS_DATA" "$GF_PATHS_HOME/.aws" "$GF_PATHS_LOGS" "$GF_PATHS_PLUGINS" "$GF_PATHS_PROVISIONING"
 
+COPY --from=go-builder /go/src/github.com/grafana/grafana/bin/linux-amd64/grafana-server /go/src/github.com/grafana/grafana/bin/linux-amd64/grafana-cli ./bin/
+COPY --from=js-builder /usr/src/app/public ./public
+COPY --from=js-builder /usr/src/app/tools ./tools
+
 EXPOSE 3000
 
-COPY ./run.sh /run.sh
+COPY ./packaging/docker/run.sh /run.sh
 
 USER grafana
 ENTRYPOINT [ "/run.sh" ]
