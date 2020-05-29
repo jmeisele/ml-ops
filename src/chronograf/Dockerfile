@@ -1,36 +1,33 @@
-FROM debian:stretch-slim
+FROM alpine:3.9
+
+RUN echo 'hosts: files dns' >> /etc/nsswitch.conf
+RUN apk add --no-cache ca-certificates && \
+    update-ca-certificates
+
+ENV CHRONOGRAF_VERSION 1.8.4
 
 RUN set -ex && \
-    apt-get update && apt-get install -y gpg dirmngr --no-install-recommends && \
-    rm -rf /var/lib/apt/lists/* && \
+    apk add --no-cache --virtual .build-deps wget gnupg tar && \
     for key in \
         05CE15085FC09D18E99EFB22684A14CF2582E0C5 ; \
     do \
         gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$key" || \
         gpg --keyserver pgp.mit.edu --recv-keys "$key" || \
         gpg --keyserver keyserver.pgp.com --recv-keys "$key" ; \
-    done
+    done && \
+    wget --no-verbose https://dl.influxdata.com/chronograf/releases/chronograf-${CHRONOGRAF_VERSION}-static_linux_amd64.tar.gz.asc && \
+    wget --no-verbose https://dl.influxdata.com/chronograf/releases/chronograf-${CHRONOGRAF_VERSION}-static_linux_amd64.tar.gz && \
+    gpg --batch --verify chronograf-${CHRONOGRAF_VERSION}-static_linux_amd64.tar.gz.asc chronograf-${CHRONOGRAF_VERSION}-static_linux_amd64.tar.gz && \
+    mkdir -p /usr/src && \
+    tar -C /usr/src -xzf chronograf-${CHRONOGRAF_VERSION}-static_linux_amd64.tar.gz && \
+    rm -f /usr/src/chronograf-*/chronograf.conf && \
+    chmod +x /usr/src/chronograf-*/* && \
+    cp -a /usr/src/chronograf-*/* /usr/bin/ && \
+    rm -rf *.tar.gz* /usr/src /root/.gnupg && \
+    apk del .build-deps
 
-ENV CHRONOGRAF_VERSION 1.8.4
-RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" && \
-    case "${dpkgArch##*-}" in \
-      amd64) ARCH='amd64';; \
-      arm64) ARCH='arm64';; \
-      armhf) ARCH='armhf';; \
-      armel) ARCH='armel';; \
-      *)     echo "Unsupported architecture: ${dpkgArch}"; exit 1;; \
-    esac && \
-    set -x && \
-    apt-get update && apt-get install -y ca-certificates curl --no-install-recommends && \
-    rm -rf /var/lib/apt/lists/* && \
-    curl -SLO "https://dl.influxdata.com/chronograf/releases/chronograf_${CHRONOGRAF_VERSION}_${ARCH}.deb.asc" && \
-    curl -SLO "https://dl.influxdata.com/chronograf/releases/chronograf_${CHRONOGRAF_VERSION}_${ARCH}.deb" && \
-    gpg --batch --verify chronograf_${CHRONOGRAF_VERSION}_${ARCH}.deb.asc chronograf_${CHRONOGRAF_VERSION}_${ARCH}.deb && \
-    dpkg -i chronograf_${CHRONOGRAF_VERSION}_${ARCH}.deb && \
-    rm -f chronograf_${CHRONOGRAF_VERSION}_${ARCH}.deb* && \
-    apt-get purge -y --auto-remove $buildDeps
+COPY ./LICENSE /usr/share/chronograf/LICENSE
 
-COPY LICENSE /usr/share/chronograf/LICENSE
 COPY agpl-3.0.md /usr/share/chronograf/agpl-3.0.md
 
 EXPOSE 8888
