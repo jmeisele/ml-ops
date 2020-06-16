@@ -1,33 +1,25 @@
 FROM python:3.7-slim-buster
 # Install python packages
-RUN pip3 install mlflow boto3 psycopg2-binary
+RUN pip3 install mlflow 
+RUN pip3 install boto3 
+RUN pip3 install psycopg2-binary
 
-# FROM continuumio/miniconda3
+WORKDIR /app
 
-# WORKDIR /app
+COPY . /app
 
-# ADD . /app
+RUN apt-get update
 
-# RUN apt-get update && \
-# # install prequired modules to support install of mlflow and related components
-#     apt-get install -y default-libmysqlclient-dev build-essential curl \
-# # cmake and protobuf-compiler required for onnx install
-#     cmake protobuf-compiler &&  \
-# # install required python packages
-#     pip install -r dev-requirements.txt && \
-#     pip install -r test-requirements.txt && \
-# # install mlflow in editable form
-#     pip install -e . && \
-# # mkdir required to support install openjdk-11-jre-headless
-#     mkdir -p /usr/share/man/man1 && apt-get install -y openjdk-11-jre-headless && \
-# # install npm for node.js support
-#     curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
-#     apt-get update && apt-get install -y nodejs && \
-#     cd mlflow/server/js && \
-#     npm install && \
-#     npm run build
+EXPOSE 5000
 
 # Run tracking uri with postgres backend for metadata
-# RUN mlflow server --default-artifact-root s3://shiptmlflowbucket/mlflow --backend-store-uri 'postgresql://mlflow:metadata@localhost/mydatabase'
+# ENTRYPOINT [ "./startup.sh" ]
 
-# Run webserver on port XXXX
+CMD ["mlflow", "server", "--port", "5000", "--host", "0.0.0.0"]
+
+# CMD ["mlflow server", \
+# "--default-artifact-root s3://data-science-mlflow-artifacts", \
+# "--backend-store-uri 'postgresql://postgres:st4rw4rs@mlflow-db.ciqwbpcomohb.us-east-1.rds.amazonaws.com:5432/mlflow_meta'", \
+# "--host 0.0.0.0", \
+# "--port 5000"]
+
