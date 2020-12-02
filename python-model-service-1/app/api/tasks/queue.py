@@ -7,7 +7,7 @@ import pika
 from loguru import logger
 
 def add_message_to_queue(body):
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq-server', port=5672))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq', port=5672))
     channel = connection.channel()
     channel.queue_declare(queue='predictions')
     channel.basic_publish(exchange='', routing_key='predictions', body=body)

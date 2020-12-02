@@ -3,7 +3,7 @@ version: "3.2"
 services:
     nginx:
         container_name: nginx
-        build: ./src/nginx
+        build: ./nginx
         restart: always
         depends_on: 
             - python-model-service1
@@ -12,62 +12,64 @@ services:
         - "80:80"
         - "443:443"
     #     volumes: 
-    #         - ./src/nginx.conf:/etc/ngimnx/nginx.conf
+    #         - ./nginx.conf:/etc/ngimnx/nginx.conf
     
     python-model-service1:
         restart: always
         container_name: python-service-1
         depends_on:
-            - rabbitmq-server
+            - rabbitmq
         build:
-            context: ./src/python-model-service-1
+            context: .//python-model-service-1
             dockerfile: Dockerfile
         ports:
             - "8000:8000"
         # volumes:
-        #     - ./src/python-model-service-1:/python-model-service-1
+        #     - ./python-model-service-1:/python-model-service-1
     
     python-model-service2:
         restart: always
         container_name: python-service-2
         depends_on:
-            - rabbitmq-server
+            - rabbitmq
         build: 
-            context: ./src/python-model-service-2
+            context: ./python-model-service-2
             dockerfile: Dockerfile
         ports:
             - "8001:8001"
     #     # volumes:
-    #     #     - ./src/python-model-service-2:/python-model-service-2
+    #     #     - ./python-model-service-2:/python-model-service-2
     postgres:
         container_name: postgres
-        build: ./src/postgres
+        build: ./postgres
         restart: always
         env_file:
-            - ./src/postgres/postgres.env
+            - ./postgres/postgres.env
         ports:
             - 5432:5432
         # volumes:
             #     - ./volumes/postgres/data:/var/lib/postgresql/data
 
-    rabbitmq-server:
+    rabbitmq:
         restart: always
-        container_name: rabbitmq-server
+        container_name: rabbitmq
         image: rabbitmq:3-management-alpine
-        environment:
-            RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
-            RABBITMQ_DEFAULT_USER: "guest"
-            RABBITMQ_DEFAULT_PASS: "guest"
-            RABBITMQ_DEFAULT_VHOST: "/"
+        volumes:
+            - ./rabbitmq/etc/definitions.json:/etc/rabbitmq/definitions.json
+        # environment:
+        #     RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
+        #     RABBITMQ_DEFAULT_USER: "guest"
+        #     RABBITMQ_DEFAULT_PASS: "guest"
+        #     RABBITMQ_DEFAULT_VHOST: "/"
         ports:
             - "15672:15672"
             - "5672:5672"
-        labels:
-            NAME: "rabbitmq-server"
+        # labels:
+        #     NAME: "rabbitmq"
     
     mlflow:
         container_name: mlflow-server
-        build: ./src/mlflow
+        build: ./mlflow
         restart: always
         image: mlflow_server 
         ports: 
@@ -84,10 +86,10 @@ services:
             - 8083:8083
             - 2003:2003
         env_file:
-            - ./src/influxdb/influxdb.env
+            - ./influxdb/influxdb.env
         # volumes:
         #     - ./volumes/influxdb/data:/var/lib/influxdb
-        #     - ./src/influxdb/backups/influxdb/db:/var/lib/influxdb/backup
+        #     - ./influxdb/backups/influxdb/db:/var/lib/influxdb/backup
 
     chronograf:
         restart: always
@@ -99,7 +101,7 @@ services:
         ports:
             - 8888:8888
         env_file:
-            - ./src/chronograf/chronograf.env
+            - ./chronograf/chronograf.env
         # volumes:
         #     - ./volumes/chronograf/data:/var/lib/chronograf
         #     - ./volumes/chronograf/log:/var/log/chronograf
@@ -114,7 +116,7 @@ services:
         ports:
             - 3000:3000
         env_file:
-            - ./src/grafana/grafana.env
+            - ./grafana/grafana.env
         # volumes:
         #     - ./volumes/grafana/data:/var/lib/grafana
         #     - ./volumes/grafana/log:/var/log/grafana
@@ -122,7 +124,7 @@ services:
     # telegraf:
     #     container_name: telegraf
     #     restart: always
-    #     build: ./src/telegraf
+    #     build: ./telegraf
     #     depends_on: 
     #         - influxdb
 
@@ -142,7 +144,7 @@ services:
             - POSTGRES_DB=airflow
             - REDIS_PASSWORD=redispass
         volumes:
-            - ./src/airflow/dags:/usr/local/airflow/dags
+            - ./airflow/dags:/usr/local/airflow/dags
             # Uncomment to include custom plugins
             # - ./plugins:/usr/local/airflow/plugins
         ports:
@@ -174,7 +176,7 @@ services:
         depends_on:
             - webserver
         # volumes:
-        #     - ./src/airflow/dags:/usr/local/airflow/dags
+        #     - ./airflow/dags:/usr/local/airflow/dags
         # Uncomment to include custom plugins
         # - ./plugins:/usr/local/airflow/plugins
         environment:
@@ -194,7 +196,7 @@ services:
         depends_on:
             - scheduler
         # volumes:
-        #     - ./src/airflow/dags:/usr/local/airflow/dags
+        #     - ./airflow/dags:/usr/local/airflow/dags
             # Uncomment to include custom plugins
             # - ./plugins:/usr/local/airflow/plugins
         environment:
