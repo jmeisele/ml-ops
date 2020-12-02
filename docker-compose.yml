@@ -17,6 +17,8 @@ services:
     python-model-service1:
         restart: always
         container_name: python-service-1
+        depends_on:
+            - rabbitmq-server
         build:
             context: ./src/python-model-service-1
             dockerfile: Dockerfile
@@ -28,6 +30,8 @@ services:
     python-model-service2:
         restart: always
         container_name: python-service-2
+        depends_on:
+            - rabbitmq-server
         build: 
             context: ./src/python-model-service-2
             dockerfile: Dockerfile
