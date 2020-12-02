@@ -1,5 +1,5 @@
 # MLOps
-Get MLOps up and going fast!
+Get an MLOps platform up and going fast!
 
 __To install__:
 

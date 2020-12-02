@@ -25,8 +25,8 @@ def post_predict(
     request: Request,
     backgound_tasks: BackgroundTasks,
     block_data: HousePredictionPayload = None,
-) -> HousePredictionResult:
+    ) -> HousePredictionResult:
     model: HousePriceModel = request.app.state.model
     prediction: HousePredictionResult = model.predict(block_data)
-    # backgound_tasks.add_task(add_message_to_queue, *args)
+    backgound_tasks.add_task(add_message_to_queue, body=str(prediction))
     return prediction
