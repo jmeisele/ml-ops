@@ -1,15 +1,15 @@
-# MicroModel
-Handling MLOps as a microservice
+# MLOps
+Get MLOps up and going fast!
 
 __To install__:
 
 1. Clone the project
     ```bash
-    git clone https://github.com/jmeisele/MicroModel.git
+    git clone https://github.com/jmeisele/ml-ops.git
     ```
 2. Change directories into the repo
     ```bash
-    cd MicroModel
+    cd ml-ops
     ```
 3. Run docker compose
     ```bash
@@ -17,20 +17,23 @@ __To install__:
     ```
 4. Open up a new terminal window and send a POST request to our model service API endpoint
     ```bash
-    curl -d "name=mercedes&price=200" -X POST http://localhost:8080/predict
+    curl -v -H "Content-Type: application/json" -X POST -d
+    '{
+        "median_income_in_block": 8.3252,
+        "median_house_age_in_block": 41,
+        "average_rooms": 6,
+        "average_bedrooms": 1,
+        "population_per_block": 322,
+        "average_house_occupancy": 2.55,
+        "block_latitude": 37.88,
+        "block_longitude": -122.23
+    }'  
+    http://localhost/predict
     ```
-<!-- 5. Next in the terminal window, buy the item you just created
-    ```bash
-    curl -d "name=mercedes" -X POST http://localhost:3002/buy
-    ``` -->
-6. This sends a message to the queue being managed by our RabbitMQ broker for the Python factory service to build
 
 __ProTip__ Check the status/health of all running containers using Portainer
 
 [Portainer](http://localhost:9000)
-
-# TODOs
-- [ ] Construct docker compose file to get all services up and running
 
 If you found this repo helpful, a [small donation](https://www.buymeacoffee.com/VlduzAG) would be greatly appreciated. 
 All proceeds go towards coffee, and all coffee goes towards more code.
