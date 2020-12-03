@@ -20,7 +20,7 @@ services:
         depends_on:
             - rabbitmq
         build:
-            context: .//python-model-service-1
+            context: ./python-model-service-1
             dockerfile: Dockerfile
         ports:
             - "8000:8000"

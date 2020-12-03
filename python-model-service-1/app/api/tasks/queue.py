@@ -16,6 +16,6 @@ def add_message_to_queue(body):
     )
     channel = connection.channel()
     channel.queue_declare(queue='predictions', durable=True)
-    channel.basic_publish(exchange='amqp.topic', routing_key='model.prediction', body=body)
+    channel.basic_publish(exchange='', routing_key='predictions', body=body)
     logger.info(f"Sent {body} to message queue")
     connection.close()
