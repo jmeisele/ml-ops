@@ -39,6 +39,7 @@ services:
             - "8001:8001"
     #     # volumes:
     #     #     - ./python-model-service-2:/python-model-service-2
+
     postgres:
         container_name: postgres
         build: ./postgres
@@ -64,7 +65,7 @@ services:
         ports:
             - "15672:15672"
             - "5672:5672"
-    
+        
     mlflow:
         container_name: mlflow-server
         build: ./mlflow
@@ -141,8 +142,8 @@ services:
             - POSTGRES_PASSWORD=airflow
             - POSTGRES_DB=airflow
             - REDIS_PASSWORD=redispass
-        volumes:
-            - ./airflow/dags:/usr/local/airflow/dags
+    #     volumes:
+    #         - ./airflow/dags:/usr/local/airflow/dags
             # Uncomment to include custom plugins
             # - ./plugins:/usr/local/airflow/plugins
         ports:
@@ -195,8 +196,8 @@ services:
             - scheduler
         # volumes:
         #     - ./airflow/dags:/usr/local/airflow/dags
-            # Uncomment to include custom plugins
-            # - ./plugins:/usr/local/airflow/plugins
+        #     Uncomment to include custom plugins
+        #     - ./plugins:/usr/local/airflow/plugins
         environment:
             - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
             - EXECUTOR=Celery
@@ -217,7 +218,13 @@ services:
         restart: always
         ports:
             - "9000:9000"
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
+    #     volumes:
+    #         - /var/run/docker.sock:/var/run/docker.sock
     #     #     - ./volumes/portainer/data:/data
-        
+
+    workers:
+        restart: always
+        container_name: rabbitmq-workers
+        build: ./workers
+        depends_on:
+            - rabbitmq
