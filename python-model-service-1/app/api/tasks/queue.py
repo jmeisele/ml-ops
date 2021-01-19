@@ -5,7 +5,7 @@ Scope: Function to add message to RabbitMQ queue
 """
 import pika
 from loguru import logger
-import os
+
 
 def add_message_to_queue(body):
     credentials = pika.PlainCredentials('producer', 'producer')

@@ -24,13 +24,15 @@ RUN set -ex && \
     cp -a /usr/src/influxdb-*/* /usr/bin/ && \
     rm -rf *.tar.gz* /usr/src /root/.gnupg && \
     apk del .build-deps
+
 COPY influxdb.conf /etc/influxdb/influxdb.conf
 
 EXPOSE 8086
 
 VOLUME /var/lib/influxdb
-
 COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 COPY init-influxdb.sh /init-influxdb.sh
+RUN chmod +x /init-influxdb.sh
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["influxd"]

@@ -78,7 +78,8 @@ services:
     
     influxdb:
         container_name: influxdb
-        image: "influxdb:latest"
+        # image: "influxdb:latest"
+        build: ./influxdb
         restart: always
         ports:
             - 8086:8086
@@ -120,14 +121,14 @@ services:
         #     - ./volumes/grafana/data:/var/lib/grafana
         #     - ./volumes/grafana/log:/var/log/grafana
     
-    # telegraf:
-    #     container_name: telegraf
-    #     restart: always
-    #     build: ./telegraf
-    #     depends_on: 
-    #         - influxdb
+    telegraf:
+        container_name: telegraf
+        restart: always
+        build: ./telegraf
+        depends_on: 
+            - influxdb
 
-    webserver:
+    airflow-webserver:
         restart: always
         container_name: airflow-webserver
         image: puckel/docker-airflow:1.10.9
@@ -142,10 +143,10 @@ services:
             - POSTGRES_PASSWORD=airflow
             - POSTGRES_DB=airflow
             - REDIS_PASSWORD=redispass
-    #     volumes:
-    #         - ./airflow/dags:/usr/local/airflow/dags
-            # Uncomment to include custom plugins
-            # - ./plugins:/usr/local/airflow/plugins
+        # volumes:
+        #     - ./airflow/dags:/usr/local/airflow/dags
+        #     Uncomment to include custom plugins
+        #     - ./plugins:/usr/local/airflow/plugins
         ports:
             - "8080:8080"
         command: webserver
@@ -155,7 +156,7 @@ services:
             timeout: 30s
             retries: 3
 
-    flower:
+    airflow-flower:
         container_name: airflow-flower
         image: puckel/docker-airflow:1.10.9
         restart: always
@@ -168,7 +169,7 @@ services:
             - "5555:5555"
         command: flower
 
-    scheduler:
+    airflow-scheduler:
         container_name: airlfow-scheduler
         image: puckel/docker-airflow:1.10.9
         restart: always
@@ -188,7 +189,7 @@ services:
             - REDIS_PASSWORD=redispass
         command: scheduler
 
-    worker:
+    airflow-worker:
         container_name: airflow-worker
         image: puckel/docker-airflow:1.10.9
         restart: always
@@ -222,7 +223,7 @@ services:
     #         - /var/run/docker.sock:/var/run/docker.sock
     #     #     - ./volumes/portainer/data:/data
 
-    workers:
+    rabbitmq-workers:
         restart: always
         container_name: rabbitmq-workers
         build: ./workers
