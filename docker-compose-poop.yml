@@ -69,8 +69,8 @@ services:
             - ./postgres/postgres.env
         ports:
             - 5432:5432
-        volumes:
-                - ./volumes/postgres/data:/var/lib/postgresql/data
+        # volumes:
+        #         - ./volumes/postgres/data:/var/lib/postgresql/data
                 # - postgres-db-volume:/var/lib/postgresql/data
         healthcheck:
             test: ["CMD", "pg_isready", "-U", "airflow"]
@@ -153,9 +153,9 @@ services:
             - 8888:8888
         env_file:
             - ./chronograf/chronograf.env
-        volumes:
-            - ./volumes/chronograf/data:/var/lib/chronograf
-            - ./volumes/chronograf/log:/var/log/chronograf
+        # volumes:
+            # - ./volumes/chronograf/data:/var/lib/chronograf
+            # - ./volumes/chronograf/log:/var/log/chronograf
 
     grafana:
         container_name: grafana
@@ -168,11 +168,12 @@ services:
             - 3000:3000
         env_file:
             - ./grafana/grafana.env
-        volumes:
-            - ./volumes/grafana/data:/var/lib/grafana
-            - ./volumes/grafana/log:/var/log/grafana
+        # volumes:
+        #     - ./volumes/grafana/data:/var/lib/grafana
+        #     - ./volumes/grafana/log:/var/log/grafana
     
     redis:
+        container_name: redis
         image: redis:latest
         ports:
             - 6379:6379

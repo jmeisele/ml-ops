@@ -4,6 +4,7 @@ Date: December 2, 2020
 Scope: ML Model objects handling pre/post processing along with predictions
 """
 from typing import List
+from random import randrange
 
 import joblib
 import numpy as np
@@ -34,13 +35,15 @@ class HousePriceModel(object):
         logger.info("Post-processing prediction.")
         result = prediction.tolist()
         human_readable_unit = result[0] * self.RESULT_UNIT_FACTOR
-        hpp = HousePredictionResult(median_house_value=human_readable_unit)
+        hpp = HousePredictionResult(
+            median_house_value=human_readable_unit, model="B"
+        )
         return hpp
 
     def _predict(self, features: List) -> np.ndarray:
         logger.info("Predicting.")
         prediction_result = self.model.predict(features)
-        return prediction_result
+        return prediction_result + float(randrange(1, 10))
 
     def predict(self, payload: HousePredictionPayload):
         if payload is None:

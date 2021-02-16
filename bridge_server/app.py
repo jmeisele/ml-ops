@@ -1,9 +1,11 @@
+from dag_mapping import config
+
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
 
-@app.route()
+@app.route("/route", methods=["POST"])
 def reroute():
     return
 
@@ -14,4 +16,4 @@ def index():
 
 
 if __name__ == "__main__":
-    app.run(hot="0.0.0.0", port=8000, debug=True)
+    app.run(host="0.0.0.0", port=8000, debug=True)
