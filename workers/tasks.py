@@ -16,12 +16,14 @@ from loguru import logger
 def callback(ch, method, properties, body):
     # Deserialize the byte array from bytes to string and format the json body
     body = body.decode("utf-8")
-    messages = body.split(" ")
-    prediction = messages[0]
-    model = messages[1]
-    logger.debug(f"prediction: {prediction}")
-    logger.debug(f"model: {model}")
-    
+    logger.debug(f"Body: {body}")
+    logger.debug(f"Data type: {type(body)}")
+    # messages = body.split(" ")
+    # prediction = messages[0]
+    # model = messages[1]
+    # logger.debug(f"prediction: {prediction}")
+    # logger.debug(f"model: {model}")
+
     # body = body.split("=")
     # logger.debug({{body[0]: body[1]}})
 

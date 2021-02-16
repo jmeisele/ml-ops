@@ -25,5 +25,11 @@ def post_predict(request: Request,
                  ) -> HousePredictionResult:
     model: HousePriceModel = request.app.state.model
     prediction: HousePredictionResult = model.predict(block_data)
-    backgound_tasks.add_task(add_message_to_queue, body=str(prediction))
+    backgound_tasks.add_task(
+        add_message_to_queue,
+        body=str(
+            {"median_house_value": prediction.median_house_value,
+             "model_version": model.version}
+            )
+        )
     return prediction

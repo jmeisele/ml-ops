@@ -22,6 +22,7 @@ class HousePriceModel(object):
     def __init__(self, path):
         self.path = path
         self._load_local_model()
+        self.version = "B"
 
     def _load_local_model(self):
         self.model = joblib.load(self.path)
@@ -35,15 +36,13 @@ class HousePriceModel(object):
         logger.info("Post-processing prediction.")
         result = prediction.tolist()
         human_readable_unit = result[0] * self.RESULT_UNIT_FACTOR
-        hpp = HousePredictionResult(
-            median_house_value=human_readable_unit, model="B"
-        )
+        hpp = HousePredictionResult(median_house_value=human_readable_unit)
         return hpp
 
     def _predict(self, features: List) -> np.ndarray:
         logger.info("Predicting.")
         prediction_result = self.model.predict(features)
-        return prediction_result + float(randrange(1, 10))
+        return prediction_result - float(randrange(1, 10))
 
     def predict(self, payload: HousePredictionPayload):
         if payload is None:
