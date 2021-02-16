@@ -21,6 +21,15 @@ def callback(ch, method, properties, body):
 
 
 def insert_record(ch, method, properties, body):
+    # Create a client object
+    client = InfluxDBClient(host="influxdb",
+                            port=8086,
+                            username="mywriteuser",
+                            password="mywritepassword",
+                            database="mlopsdemo")
+    # If you don't have a DB, create one with the client object
+    # client.create_database("ml-ops-demo")
+
     # Format the json body
     body = body.decode("utf-8")
     body = body.split("=")
@@ -39,12 +48,5 @@ def insert_record(ch, method, properties, body):
             }
         }
     ]
-    # Create a client object
-    client = InfluxDBClient(host="influxdb",
-                            port=8086,
-                            username="mywriteuser",
-                            password="mywritepassword",
-                            database="mlopsdemo")
-    # If you don't have a DB, create one with the client object
-    # client.create_database("ml-ops-demo")
     client.write_points(json_body)
+    client.close()
