@@ -28,11 +28,13 @@ __To install__:
         "block_latitude": 37.88,
         "block_longitude": -122.23
     }'  
-    http://localhost/predict
+    http://localhost/api/model/predict
     ```
-
-## Architecture
+## Platform Architecture
 ![MLOps](docs/mlops_level1.drawio.svg)
+
+## Model Serving Architecture
+![API worker architecture](docs/ml_api_architecture.drawio.svg)
 
 ## Services
 - nginx: Load Balancer
@@ -41,7 +43,7 @@ __To install__:
 - postgresql: RDBMS
 - rabbitmq: Message Queue
 - rabbitmq workers: Workers listening to RabbitMQ
-- mlflow: Machine Learning Experiment Tracking
+- mlflow: Machine Learning Experiment Management
 - influxdb: Time Series Database
 - chronograf: Admin & WebUI for InxfluxDB
 - grafana: Performance Monitoring
