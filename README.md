@@ -31,6 +31,23 @@ __To install__:
     http://localhost/predict
     ```
 
+## Architecture
+![MLOps](docs/mlops_level1.drawio.svg)
+
+## Services
+- nginx: Load Balancer
+- python-model-service1: FastAPI Machine Learning API 1
+- python-model-service2: FastAPI Machine Learning API 2
+- postgresql: RDBMS
+- rabbitmq: Message Queue
+- rabbitmq workers: Workers listening to RabbitMQ
+- mlflow: Machine Learning Experiment Tracking
+- influxdb: Time Series Database
+- chronograf: Admin & WebUI for InxfluxDB
+- grafana: Performance Monitoring
+- redis: Cache
+- airflow: Workflow Orchestrator
+
 __ProTip__ Check the status/health of all running containers using Portainer
 
 [Portainer](http://localhost:9000)

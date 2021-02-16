@@ -47,6 +47,7 @@ def get_run_details(runid):
 
     return run_details
 
+
 def get_model_production(mlflow_experiment_id):
     mlflow_search_query = "tags.state='production'"
     run = mlflowclient.search_runs([mlflow_experiment_id], mlflow_search_query)
@@ -55,6 +56,7 @@ def get_model_production(mlflow_experiment_id):
         return get_run_details(runid)
     else:
         return 0
+
 
 def push_model_production(mlflow_experiment_id, runid, userid, start_date):
 

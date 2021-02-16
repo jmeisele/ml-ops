@@ -1,6 +1,6 @@
 """
 Author: Jason Eisele
-Date: December 2, 2020
+Date: February 16, 2021
 Scope: Function to add message to RabbitMQ queue
 """
 import pika
