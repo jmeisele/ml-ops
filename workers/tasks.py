@@ -1,12 +1,9 @@
 """
 Author: Jason Eisele
-Date: December 2, 2020
+Date: February 17, 2020
 Scope: Worker tasks defined
 """
-import uuid
-import random
-import time
-import json
+import ast
 from datetime import datetime
 
 from influxdb import InfluxDBClient
@@ -14,18 +11,12 @@ from loguru import logger
 
 
 def callback(ch, method, properties, body):
-    # Deserialize the byte array from bytes to string and format the json body
+    # Deserialize the byte array from bytes to string and format body into dict
     body = body.decode("utf-8")
     logger.debug(f"Body: {body}")
-    logger.debug(f"Data type: {type(body)}")
-    # messages = body.split(" ")
-    # prediction = messages[0]
-    # model = messages[1]
-    # logger.debug(f"prediction: {prediction}")
-    # logger.debug(f"model: {model}")
-
-    # body = body.split("=")
-    # logger.debug({{body[0]: body[1]}})
+    logger.debug(f"Data type before conversion: {type(body)}")
+    body = ast.literal_eval(body)
+    logger.debug(f"Data type after literal_eval: {type(body)}")
 
 
 def insert_record(ch, method, properties, body):
@@ -38,25 +29,24 @@ def insert_record(ch, method, properties, body):
     # If you don't have a DB, create one with the client object
     # client.create_database("ml-ops-demo")
 
-    # Deserialize from byte array and format the json body
+    # Deserialize from byte array
     body = body.decode("utf-8")
-    messages = body.split(" ")
-    prediction = messages[0]
-    model = messages[1]
-    prediction_body = prediction.split("=")
-    model_body = model.split("=")
+
+    # Convert to dict
+    body = ast.literal_eval(body)
+    # body_keys = list(body.keys())
+
     now = datetime.now()
     now = now.strftime("%Y-%m-%dT%H:%M:%SZ")
     json_body = [
         {
             "measurement": "predicted_house_price",
             "tags": {
-                "model": model_body[1],
-                # "region": "us-west"
+                "model": body.get("model_version"),
             },
             "time": now,
             "fields": {
-                prediction_body[0]: float(prediction_body[1])
+                "median_house_value": body.get("median_house_value")
             }
         }
     ]
