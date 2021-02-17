@@ -20,14 +20,14 @@ channel = connection.channel()
 channel.queue_declare(queue='predictions', durable=True)
 
 # Log from message queue
-channel.basic_consume(queue='predictions',
-                      on_message_callback=callback,
-                      auto_ack=True)
+# channel.basic_consume(queue='predictions',
+#                       on_message_callback=callback,
+#                       auto_ack=True)
 
 # Consume from Message queue
-# channel.basic_consume(queue='predictions',
-#                       on_message_callback=insert_record,
-#                       auto_ack=True)
+channel.basic_consume(queue='predictions',
+                      on_message_callback=insert_record,
+                      auto_ack=True)
 
 # Remove auto_ack=True flag
 # to ensure proper message acknowledgements

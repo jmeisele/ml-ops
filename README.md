@@ -1,6 +1,19 @@
 # MLOps
 Get an MLOps platform up and going fast!
 
+# TODOs
+- Install & Configure Airflow 2.0 service
+- Write dummy retrain DAG
+- Test stable Airflow REST API from postman
+- Create bridge "server" to POST to Airflow rest API, simple flask app will work
+- Telegraf to collect metrics and send to influxDB such as RabbitMQ, ml api health
+- Create Grafana dashboard:
+  - Model predictions
+  - RabbitMQ queue depth
+  - RabbitMQ queue health
+  - Webhook on alarm condition POST to bridge server
+
+
 __To install__:
 
 1. Clone the project

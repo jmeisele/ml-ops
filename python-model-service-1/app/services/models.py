@@ -4,7 +4,7 @@ Date: December 2, 2020
 Scope: ML Model objects handling pre/post processing along with predictions
 """
 from typing import List
-from random import randrange
+from random import randint
 
 import joblib
 import numpy as np
@@ -42,7 +42,7 @@ class HousePriceModel(object):
     def _predict(self, features: List) -> np.ndarray:
         logger.info("Predicting.")
         prediction_result = self.model.predict(features)
-        return prediction_result + float(randrange(1, 20))
+        return prediction_result + float(randint(1, 20))
 
     def predict(self, payload: HousePredictionPayload):
         if payload is None:
