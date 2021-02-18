@@ -2,19 +2,20 @@
 Get an MLOps platform up and going fast!
 
 # TODOs
-- Install & Configure Airflow 2.0 service
-- Write dummy retrain DAG
-- Test stable Airflow REST API from postman
-- Create bridge "server" to POST to Airflow rest API, simple flask app will work
-- Telegraf to collect metrics and send to influxDB such as RabbitMQ, ml api health
-- Create Grafana dashboard:
-  - Model predictions
-  - RabbitMQ queue depth
-  - RabbitMQ queue health
-  - Webhook on alarm condition POST to bridge server
+- [x] Install & Configure Airflow 2.0 service
+- [x] Write dummy retrain DAG
+- [x] Test stable Airflow REST API from postman
+- [ ] Create bridge "server" to POST to Airflow rest API, simple flask app will work
+- [ ] Telegraf to collect metrics and send to influxDB such as RabbitMQ, ml api health
+- [ ] Create Grafana dashboard:
+  - [ ] Model predictions
+  - [ ] RabbitMQ queue depth
+  - [ ] RabbitMQ queue health
+  - [ ] Webhook on alarm condition POST to bridge server
 
 
-__To install__:
+__To run__:
+Make sure docker is running and you have [Docker Compose](https://docs.docker.com/compose/install/) installed. 
 
 1. Clone the project
     ```bash
@@ -24,11 +25,18 @@ __To install__:
     ```bash
     cd ml-ops
     ```
-3. Run docker compose
+3. Run database migrations and create the first Airflow user account.
+    ```bash
+    docker-compose up airflow-init
+    ```
+    user: _airflow_
+
+    password : _airflow_
+4. Run docker compose
     ```bash
     docker-compose up --build
     ```
-4. Open up a new terminal window and send a POST request to our model service API endpoint
+5. Open up a new terminal window and send a POST request to our model service API endpoint
     ```bash
     curl -v -H "Content-Type: application/json" -X POST -d
     '{
@@ -43,6 +51,7 @@ __To install__:
     }'  
     http://localhost/api/model/predict
     ```
+
 ## Platform Architecture
 ![MLOps](docs/mlops_level1.drawio.svg)
 
