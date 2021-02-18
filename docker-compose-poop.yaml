@@ -123,11 +123,11 @@ services:
             - postgres
         build: ./mlflow
         restart: always
-        # image: mlflow_server 
         ports: 
             - "5000:5000"
         command: 
-            mlflow server --backend-store-uri postgresql://mlflow:metadata@postgres:5432/mlflowdb --default-artifact-root s3://shiptmlflowbucket/mlflow --host 0.0.0.0 -p 5000
+            # mlflow server --backend-store-uri postgresql://mlflow:metadata@postgres:5432/mlflowdb --default-artifact-root s3://shiptmlflowbucket/mlflow --host 0.0.0.0 -p 5000
+            mlflow server --backend-store-uri postgresql://airflow:airflow@postgres:5432/mlflowdb --default-artifact-root s3://shiptmlflowbucket/mlflow --host 0.0.0.0 -p 5000
     
     influxdb:
         container_name: influxdb
