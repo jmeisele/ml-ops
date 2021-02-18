@@ -21,10 +21,8 @@ x-airflow-common:
     - ./airflow/plugins:/opt/airflow/plugins
   user: "${AIRFLOW_UID:-50000}:${AIRFLOW_GID:-50000}"
   depends_on:
-    redis:
-      condition: service_healthy
-    postgres:
-      condition: service_healthy
+    - redis
+    - postgres
 
 services:
     nginx:
@@ -37,8 +35,8 @@ services:
         ports:
         - "80:80"
         - "443:443"
-        volumes: 
-            - ./nginx.conf:/etc/nginx/nginx.conf
+        # volumes: 
+        #     - ./nginx.conf:/etc/nginx/nginx.conf
     
     python-model-service1:
         restart: always
@@ -66,36 +64,36 @@ services:
         volumes:
             - ./python-model-service-2:/python-model-service-2
 
-    postgres:
-        container_name: postgres
-        build: ./postgres
-        env_file:
-            - ./postgres/postgres.env
-        ports:
-            - 5432:5432
+    # postgres:
+    #     container_name: postgres
+    #     build: ./postgres
+    #     env_file:
+    #         - ./postgres/postgres.env
+    #     ports:
+    #         - 5432:5432
         # volumes:
         #         - ./volumes/postgres/data:/var/lib/postgresql/data
                 # - postgres-db-volume:/var/lib/postgresql/data
+        # healthcheck:
+        #     test: ["CMD", "pg_isready", "-U", "airflow"]
+        #     interval: 5s
+        #     retries: 5
+        # restart: always
+
+    postgres:
+        container_name: postgres
+        build: ./postgres
+        environment:
+            POSTGRES_USER: airflow
+            POSTGRES_PASSWORD: airflow
+            POSTGRES_DB: airflow
+        volumes:
+            - postgres-db-volume:/var/lib/postgresql/data
         healthcheck:
             test: ["CMD", "pg_isready", "-U", "airflow"]
             interval: 5s
             retries: 5
         restart: always
-
-    # postgres:
-    #     image: postgres:13
-    #     environment:
-    #         POSTGRES_USER: airflow
-    #         POSTGRES_PASSWORD: airflow
-    #         POSTGRES_DB: airflow
-    #     volumes:
-    #         - postgres-db-volume:/var/lib/postgresql/data
-    #     healthcheck:
-    #         test: ["CMD", "pg_isready", "-U", "airflow"]
-    #         interval: 5s
-    #         retries: 5
-    #     restart: always
-
 
     rabbitmq:
         restart: always
@@ -125,11 +123,11 @@ services:
             - postgres
         build: ./mlflow
         restart: always
-        image: mlflow_server 
+        # image: mlflow_server 
         ports: 
             - "5000:5000"
         command: 
-            mlflow server --backend-store-uri postgresql://mlflow:metadata@postgres/mlflowdb --default-artifact-root s3://shiptmlflowbucket/mlflow --host 0.0.0.0 -p 5000
+            mlflow server --backend-store-uri postgresql://mlflow:metadata@postgres:5432/mlflowdb --default-artifact-root s3://shiptmlflowbucket/mlflow --host 0.0.0.0 -p 5000
     
     influxdb:
         container_name: influxdb
@@ -187,7 +185,7 @@ services:
             timeout: 30s
             retries: 50
         restart: always
-        command: redis-server --requirepass redispass
+        # command: redis-server --requirepass redispass
 
     # telegraf:
     #     container_name: telegraf
@@ -196,86 +194,134 @@ services:
     #     depends_on: 
     #         - influxdb
 
-# ORIGINAL AIRFLOW CONFIG
     airflow-webserver:
+        <<: *airflow-common
+        command: webserver
+        ports:
+            - 8080:8080
+        healthcheck:
+            test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+            interval: 10s
+            timeout: 10s
+            retries: 5
         restart: always
-        container_name: airflow-webserver
-        image: puckel/docker-airflow:1.10.9
+
+    airflow-scheduler:
+        <<: *airflow-common
+        command: scheduler
+        restart: always
         depends_on:
-            - postgres
-            - redis
+            - airflow-webserver
+
+    airflow-worker:
+        <<: *airflow-common
+        command: celery worker
+        restart: always
+        depends_on:
+            - airflow-scheduler
+
+    airflow-init:
+        <<: *airflow-common
+        command: version
         environment:
-            - LOAD_EX=n
-            - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
-            - EXECUTOR=Celery
-            - POSTGRES_USER=airflow
-            - POSTGRES_PASSWORD=airflow
-            - POSTGRES_DB=airflow
-            - REDIS_PASSWORD=redispass
+            <<: *airflow-common-env
+            _AIRFLOW_DB_UPGRADE: 'true'
+            _AIRFLOW_WWW_USER_CREATE: 'true'
+            _AIRFLOW_WWW_USER_USERNAME: ${_AIRFLOW_WWW_USER_USERNAME:-airflow}
+            _AIRFLOW_WWW_USER_PASSWORD: ${_AIRFLOW_WWW_USER_PASSWORD:-airflow}
+
+    flower:
+        <<: *airflow-common
+        command: celery flower
+        ports:
+            - 5555:5555
+        healthcheck:
+            test: ["CMD", "curl", "--fail", "http://localhost:5555/"]
+            interval: 10s
+            timeout: 10s
+            retries: 5
+        restart: always
+
+# ORIGINAL AIRFLOW CONFIG
+    # airflow-webserver:
+    #     restart: always
+    #     container_name: airflow-webserver
+    #     image: puckel/docker-airflow:1.10.9
+    #     depends_on:
+    #         - postgres
+    #         - redis
+    #     environment:
+    #         - LOAD_EX=n
+    #         - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
+    #         - EXECUTOR=Celery
+    #         - POSTGRES_USER=airflow
+    #         - POSTGRES_PASSWORD=airflow
+    #         - POSTGRES_DB=airflow
+    #         - REDIS_PASSWORD=redispass
         # volumes:
         #     - ./airflow/dags:/usr/local/airflow/dags
         #     Uncomment to include custom plugins
         #     - ./plugins:/usr/local/airflow/plugins
-        ports:
-            - "8080:8080"
-        command: webserver
-        healthcheck:
-            test: ["CMD-SHELL", "[ -f /usr/local/airflow/airflow-webserver.pid ]"]
-            interval: 30s
-            timeout: 30s
-            retries: 3
+        # ports:
+        #     - "8080:8080"
+        # command: webserver
+        # healthcheck:
+        #     test: ["CMD-SHELL", "[ -f /usr/local/airflow/airflow-webserver.pid ]"]
+        #     interval: 30s
+        #     timeout: 30s
+        #     retries: 3
 
-    airflow-flower:
-        container_name: airflow-flower
-        image: puckel/docker-airflow:1.10.9
-        restart: always
-        depends_on:
-            - redis
-        environment:
-            - EXECUTOR=Celery
-            - REDIS_PASSWORD=redispass
-        ports:
-            - "5555:5555"
-        command: flower
+    # airflow-flower:
+    #     container_name: airflow-flower
+    #     image: puckel/docker-airflow:1.10.9
+    #     restart: always
+    #     depends_on:
+    #         - redis
+    #     environment:
+    #         - EXECUTOR=Celery
+    #         - REDIS_PASSWORD=redispass
+    #     ports:
+    #         - "5555:5555"
+    #     command: flower
 
-    airflow-scheduler:
-        container_name: airlfow-scheduler
-        image: puckel/docker-airflow:1.10.9
-        restart: always
-        depends_on:
-            - airflow-webserver
+    # airflow-scheduler:
+    #     container_name: airlfow-scheduler
+    #     image: puckel/docker-airflow:1.10.9
+    #     restart: always
+    #     depends_on:
+    #         - airflow-webserver
         # volumes:
         #     - ./airflow/dags:/usr/local/airflow/dags
         # Uncomment to include custom plugins
         # - ./plugins:/usr/local/airflow/plugins
-        environment:
-            - LOAD_EX=n
-            - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
-            - EXECUTOR=Celery
-            - POSTGRES_USER=airflow
-            - POSTGRES_PASSWORD=airflow
-            - POSTGRES_DB=airflow
-            - REDIS_PASSWORD=redispass
-        command: scheduler
+        # environment:
+        #     - LOAD_EX=n
+        #     - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
+        #     - EXECUTOR=Celery
+        #     - POSTGRES_USER=airflow
+        #     - POSTGRES_PASSWORD=airflow
+        #     - POSTGRES_DB=airflow
+        #     - REDIS_PASSWORD=redispass
+        # command: scheduler
 
-    airflow-worker:
-        container_name: airflow-worker
-        image: puckel/docker-airflow:1.10.9
-        restart: always
-        depends_on:
-            - airflow-scheduler
+    # airflow-worker:
+    #     container_name: airflow-worker
+    #     image: puckel/docker-airflow:1.10.9
+    #     restart: always
+    #     depends_on:
+    #         - airflow-scheduler
         # volumes:
         #     - ./airflow/dags:/usr/local/airflow/dags
         #     Uncomment to include custom plugins
         #     - ./plugins:/usr/local/airflow/plugins
-        environment:
-            - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
-            - EXECUTOR=Celery
-            - POSTGRES_USER=airflow
-            - POSTGRES_PASSWORD=airflow
-            - POSTGRES_DB=airflow
-            - REDIS_PASSWORD=redispass
-        command: worker
+        # environment:
+        #     - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
+        #     - EXECUTOR=Celery
+        #     - POSTGRES_USER=airflow
+        #     - POSTGRES_PASSWORD=airflow
+        #     - POSTGRES_DB=airflow
+        #     - REDIS_PASSWORD=redispass
+        # command: worker
 
     # redis:
     #     container_name: redis

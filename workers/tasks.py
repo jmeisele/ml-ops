@@ -26,6 +26,7 @@ def insert_record(ch, method, properties, body):
                             username="mywriteuser",
                             password="mywritepassword",
                             database="mlopsdemo")
+
     # If you don't have a DB, create one with the client object
     # client.create_database("ml-ops-demo")
 
@@ -34,7 +35,7 @@ def insert_record(ch, method, properties, body):
 
     # Convert to dict
     body = ast.literal_eval(body)
-    # body_keys = list(body.keys())
+    logger.info(f"Received: {body}")
 
     now = datetime.now()
     now = now.strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -51,4 +52,5 @@ def insert_record(ch, method, properties, body):
         }
     ]
     client.write_points(json_body)
+    logger.info(f"Data written to influxDB")
     client.close()
