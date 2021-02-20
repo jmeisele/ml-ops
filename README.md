@@ -80,3 +80,9 @@ __ProTip__ Check the status/health of all running containers using Portainer
 
 If you found this repo helpful, a [small donation](https://www.buymeacoffee.com/VlduzAG) would be greatly appreciated. 
 All proceeds go towards coffee, and all coffee goes towards more code.
+
+## gotchas:
+
+### Postgres:
+
+_Warning: scripts in /docker-entrypoint-initdb.d are only run if you start the container with a data directory that is empty; any pre-existing database will be left untouched on container startup._

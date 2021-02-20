@@ -1,3 +1,5 @@
+import json
+from requests import request
 from dag_mapping import config
 
 from flask import Flask, request, jsonify
@@ -7,7 +9,11 @@ app = Flask(__name__)
 
 @app.route("/route", methods=["POST"])
 def reroute():
-    return
+    url = "http://localhost:8080/api/dags/example_bash_operator/dagRuns"
+    payload = {"conf": {}}
+    headers = 
+    response = request.post(url=url, data=json.dumps(payload), headers=headers)
+    data = response.json()
 
 
 @app.route("/health", methods=["GET"])

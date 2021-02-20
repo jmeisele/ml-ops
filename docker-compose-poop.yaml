@@ -87,8 +87,8 @@ services:
             POSTGRES_USER: airflow
             POSTGRES_PASSWORD: airflow
             POSTGRES_DB: airflow
-        volumes:
-            - postgres-db-volume:/var/lib/postgresql/data
+        # volumes:
+        #     - postgres-db-volume:/var/lib/postgresql/data
         healthcheck:
             test: ["CMD", "pg_isready", "-U", "airflow"]
             interval: 5s
@@ -126,8 +126,7 @@ services:
         ports: 
             - "5000:5000"
         command: 
-            # mlflow server --backend-store-uri postgresql://mlflow:metadata@postgres:5432/mlflowdb --default-artifact-root s3://shiptmlflowbucket/mlflow --host 0.0.0.0 -p 5000
-            mlflow server --backend-store-uri postgresql://airflow:airflow@postgres:5432/mlflowdb --default-artifact-root s3://shiptmlflowbucket/mlflow --host 0.0.0.0 -p 5000
+            mlflow server --backend-store-uri postgresql://mlflow:metadata@postgres:5432/mlflowdb --default-artifact-root s3://shiptmlflowbucket/mlflow --host 0.0.0.0 -p 5000
     
     influxdb:
         container_name: influxdb
@@ -339,5 +338,5 @@ services:
     #     #     - ./volumes/portainer/data:/data
 
 
-volumes:
-  postgres-db-volume:
+# volumes:
+#   postgres-db-volume:

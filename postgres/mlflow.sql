@@ -1,0 +1,3 @@
+CREATE USER mlflow WITH PASSWORD 'metadata';
+CREATE DATABASE mlflowdb;
+GRANT ALL PRIVILEGES ON DATABASE mlflowdb TO mlflow;
