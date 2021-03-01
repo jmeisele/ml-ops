@@ -19,16 +19,17 @@ router = APIRouter()
 
 
 @router.post("/predict", response_model=HousePredictionResult, name="predict")
-def post_predict(request: Request,
-                 backgound_tasks: BackgroundTasks,
-                 block_data: HousePredictionPayload = None,
-                 ) -> HousePredictionResult:
+async def post_predict(request: Request,
+                       backgound_tasks: BackgroundTasks,
+                       block_data: HousePredictionPayload = None,
+                       ) -> HousePredictionResult:
     model: HousePriceModel = request.app.state.model
     prediction: HousePredictionResult = model.predict(block_data)
     backgound_tasks.add_task(
         add_message_to_queue,
         body=str(
-            {"median_house_value": prediction.median_house_value,
+            {"request": await request.json(),
+             "median_house_value": prediction.median_house_value,
              "model_version": model.version}
         )
     )

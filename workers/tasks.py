@@ -17,6 +17,7 @@ def callback(ch, method, properties, body):
     logger.debug(f"Data type before conversion: {type(body)}")
     body = ast.literal_eval(body)
     logger.debug(f"Data type after literal_eval: {type(body)}")
+    logger.debug(body)
 
 
 def insert_record(ch, method, properties, body):

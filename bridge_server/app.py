@@ -1,6 +1,6 @@
 import json
 from requests import request
-from dag_mapping import config
+from dag_mapping import config_map
 
 from flask import Flask, request, jsonify
 
