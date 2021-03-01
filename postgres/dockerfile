@@ -1,12 +1,10 @@
-# FROM postgres
 FROM postgres:13
 
-# Initialization shell scripts for mlflow backend metadata store
+# Initialization shell scripts for mlflow, and google feast
 COPY ./mlflow.sql /docker-entrypoint-initdb.d/mlflow.sql
-RUN chmod +x /docker-entrypoint-initdb.d/mlflow.sql
-# COPY ./init-mlflow-db.sh /docker-entrypoint-initdb.d/init-mlflow-db.sh 
-EXPOSE 5432
+COPY ./feast.sql /docker-entrypoint-initdb.d/feast.sql
+COPY ./init-mlflow-db.sh /docker-entrypoint-initdb.d/init-mlflow-db.sh 
 
-####### Old ##########
-# COPY ./mlflow.sql /docker-entrypoint-initdb.d/mlflow.sql
-# RUN chmod +x /docker-entrypoint-initdb.d/mlflow.sql
+RUN chmod +x /docker-entrypoint-initdb.d/mlflow.sql
+RUN chmod +x /docker-entrypoint-initdb.d/feast.sql
+EXPOSE 5432

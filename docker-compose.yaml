@@ -1,139 +1,406 @@
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-#
-
-# Basic Airflow cluster configuration for CeleryExecutor with Redis and PostgreSQL.
-#
-# WARNING: This configuration is for local development. Do not use it in a production deployment.
-#
-# This configuration supports basic configuration using environment variables or an .env file
-# The following variables are supported:
-#
-# AIRFLOW_IMAGE_NAME         - Docker image name used to run Airflow.
-#                              Default: apache/airflow:master-python3.8
-# AIRFLOW_UID                - User ID in Airflow containers
-#                              Default: 50000
-# AIRFLOW_GID                - Group ID in Airflow containers
-#                              Default: 50000
-# _AIRFLOW_WWW_USER_USERNAME - Username for the administrator account.
-#                              Default: airflow
-# _AIRFLOW_WWW_USER_PASSWORD - Password for the administrator account.
-#                              Default: airflow
-#
-# Feel free to modify this file to suit your needs.
----
-# version: '3'
-version: '3.4'
+version: "3.4"
 x-airflow-common:
   &airflow-common
   image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:2.0.1}
   environment:
     &airflow-common-env
+    AIRFLOW__API__AUTH_BACKEND: 'airflow.api.auth.backend.basic_auth'
     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
     AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
-    AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres/airflow
-    AIRFLOW__CELERY__BROKER_URL: redis://:@redis:6379/0
     AIRFLOW__CORE__FERNET_KEY: ''
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
     AIRFLOW__CORE__LOAD_EXAMPLES: 'true'
-    AIRFLOW__API__AUTH_BACKEND: 'airflow.api.auth.backend.basic_auth'
+    AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres/airflow
+    AIRFLOW__CELERY__BROKER_URL: redis://:@redis:6379/0
   volumes:
-    # - ./dags:/opt/airflow/dags
-    # - ./logs:/opt/airflow/logs
-    # - ./plugins:/opt/airflow/plugins
     - ./airflow/dags:/opt/airflow/dags
     - ./airflow/logs:/opt/airflow/logs
     - ./airflow/plugins:/opt/airflow/plugins
   user: "${AIRFLOW_UID:-50000}:${AIRFLOW_GID:-50000}"
   depends_on:
     - redis
-        # condition: service_healthy
     - postgres
-        # condition: service_healthy
 
 services:
-  postgres:
-    image: postgres:13
-    environment:
-      POSTGRES_USER: airflow
-      POSTGRES_PASSWORD: airflow
-      POSTGRES_DB: airflow
-    volumes:
-      - postgres-db-volume:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "airflow"]
-      interval: 5s
-      retries: 5
-    restart: always
+    nginx:
+        container_name: nginx
+        build: ./nginx
+        depends_on: 
+            - python-model-service1
+            - python-model-service2
+        ports:
+        - "80:80"
+        - "443:443"
+        # volumes: 
+        #     - ./nginx.conf:/etc/nginx/nginx.conf
+        restart: always
+    
+    python-model-service1:
+        container_name: python-service-1
+        depends_on:
+            - rabbitmq
+        build:
+            context: ./python-model-service-1
+            dockerfile: Dockerfile
+        ports:
+            - "8000:8000"
+        volumes:
+            - ./python-model-service-1:/python-model-service-1
+        restart: always
+    
+    python-model-service2:
+        container_name: python-service-2
+        depends_on:
+            - rabbitmq
+        build: 
+            context: ./python-model-service-2
+            dockerfile: Dockerfile
+        ports:
+            - "8001:8001"
+        volumes:
+            - ./python-model-service-2:/python-model-service-2
+        restart: always
+    
+    bridge-server:
+        container_name: bridge_server
+        build: ./bridge_server
+        ports:
+            - "8002:8002"
+        restart: always
+    
+    postgres:
+        container_name: postgres
+        build: ./postgres
+        environment:
+            POSTGRES_USER: airflow
+            POSTGRES_PASSWORD: airflow
+            POSTGRES_DB: airflow
+        # volumes:
+        #     - postgres-db-volume:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD", "pg_isready", "-U", "airflow"]
+            interval: 5s
+            retries: 5
+        restart: always
 
-  redis:
-    image: redis:latest
-    ports:
-      - 6379:6379
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 30s
-      retries: 50
-    restart: always
+    rabbitmq:
+        container_name: rabbitmq
+        image: rabbitmq:3-management-alpine
+        volumes:
+            - ./rabbitmq/etc/definitions.json:/etc/rabbitmq/definitions.json
+        # environment:
+        #     RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
+        #     RABBITMQ_DEFAULT_USER: "guest"
+        #     RABBITMQ_DEFAULT_PASS: "guest"
+        #     RABBITMQ_DEFAULT_VHOST: "/"
+        ports:
+            - "15672:15672"
+            - "5672:5672"
+        restart: always
 
-  airflow-webserver:
-    <<: *airflow-common
-    command: webserver
-    ports:
-      - 8080:8080
-    healthcheck:
-      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
-      interval: 10s
-      timeout: 10s
-      retries: 5
-    restart: always
+    rabbitmq-workers:
+        container_name: rabbitmq-workers
+        depends_on:
+            - rabbitmq
+        build: ./workers
+        # command: ["./workers/wait_for_rabbitmq.sh", "rabbitmq:5672", "--", "python3", "app.py"]
+        restart: always
 
-  airflow-scheduler:
-    <<: *airflow-common
-    command: scheduler
-    restart: always
+    mlflow:
+        container_name: mlflow-server
+        depends_on:
+            - postgres
+        build: ./mlflow
+        ports: 
+            - "5000:5000"
+        command: 
+            mlflow server --backend-store-uri postgresql://mlflow:metadata@postgres:5432/mlflowdb --default-artifact-root file://mlflow/artifacts --host 0.0.0.0 -p 5000
+        restart: always
+    
+    influxdb:
+        container_name: influxdb
+        build: ./influxdb
+        ports:
+            - 8086:8086
+            - 8083:8083
+            - 2003:2003
+        env_file:
+            - ./influxdb/influxdb.env
+        # volumes:
+        #     - ./volumes/influxdb/data:/var/lib/influxdb
+        #     - ./influxdb/backups/influxdb/db:/var/lib/influxdb/backup
+        restart: always
 
-  airflow-worker:
-    <<: *airflow-common
-    command: celery worker
-    restart: always
+    chronograf:
+        container_name: chronograf
+        image: chronograf:1.8.4-alpine
+        depends_on:
+            - influxdb
+        user: "0"
+        ports:
+            - 8888:8888
+        env_file:
+            - ./chronograf/chronograf.env
+        # volumes:
+        #     - ./volumes/chronograf/data:/var/lib/chronograf
+        #     - ./volumes/chronograf/log:/var/log/chronograf
+        restart: always
 
-  airflow-init:
-    <<: *airflow-common
-    command: version
-    environment:
-      <<: *airflow-common-env
-      _AIRFLOW_DB_UPGRADE: 'true'
-      _AIRFLOW_WWW_USER_CREATE: 'true'
-      _AIRFLOW_WWW_USER_USERNAME: ${_AIRFLOW_WWW_USER_USERNAME:-airflow}
-      _AIRFLOW_WWW_USER_PASSWORD: ${_AIRFLOW_WWW_USER_PASSWORD:-airflow}
+    grafana:
+        container_name: grafana
+        image: grafana/grafana:6.3.6
+        depends_on:
+            - influxdb
+        user: "0"
+        ports:
+            - 3000:3000
+        env_file:
+            - ./grafana/grafana.env
+        # volumes:
+        #     - ./volumes/grafana/data:/var/lib/grafana
+        #     - ./volumes/grafana/log:/var/log/grafana
+        restart: always
+    
+    redis:
+        container_name: redis
+        image: redis:latest
+        ports:
+            - 6379:6379
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            interval: 5s
+            timeout: 30s
+            retries: 50
+        # command: redis-server --requirepass redispass
+        restart: always
 
-  flower:
-    <<: *airflow-common
-    command: celery flower
-    ports:
-      - 5555:5555
-    healthcheck:
-      test: ["CMD", "curl", "--fail", "http://localhost:5555/"]
-      interval: 10s
-      timeout: 10s
-      retries: 5
-    restart: always
+    # Airflow Workflow Orchestrator
+    airflow-webserver:
+        <<: *airflow-common
+        command: webserver
+        ports:
+            - 8080:8080
+        healthcheck:
+            test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+            interval: 10s
+            timeout: 10s
+            retries: 5
+        restart: always
 
-volumes:
-  postgres-db-volume:
+    airflow-scheduler:
+        <<: *airflow-common
+        depends_on:
+            - airflow-webserver
+        command: scheduler
+        restart: always
+
+    airflow-worker:
+        <<: *airflow-common
+        depends_on:
+            - airflow-scheduler
+        command: celery worker
+        restart: always
+
+    airflow-init:
+        <<: *airflow-common
+        environment:
+            <<: *airflow-common-env
+            _AIRFLOW_DB_UPGRADE: 'true'
+            _AIRFLOW_WWW_USER_CREATE: 'true'
+            _AIRFLOW_WWW_USER_USERNAME: ${_AIRFLOW_WWW_USER_USERNAME:-airflow}
+            _AIRFLOW_WWW_USER_PASSWORD: ${_AIRFLOW_WWW_USER_PASSWORD:-airflow}
+        command: version
+
+    flower:
+        <<: *airflow-common
+        ports:
+            - 5555:5555
+        healthcheck:
+            test: ["CMD", "curl", "--fail", "http://localhost:5555/"]
+            interval: 10s
+            timeout: 10s
+            retries: 5
+        command: celery flower
+        restart: always
+    
+    # Google Feast Feature Store
+    # feast-core:
+    #     image: gcr.io/kf-feast/feast-core:${FEAST_VERSION}
+    #     volumes:
+    #         - ${FEAST_CORE_CONFIG}:/etc/feast/application.yml
+    #     environment:
+    #         DB_HOST: postgres
+    #     restart: on-failure
+    #     depends_on:
+    #         - postgres
+    #     ports:
+    #         - 6565:6565
+    #     command:
+    #         - java
+    #         - -jar
+    #         - /opt/feast/feast-core.jar
+    #         - --spring.config.location=classpath:/application.yml,file:/etc/feast/application.yml
+    
+    # feast-online-serving:
+    #     image: gcr.io/kf-feast/feast-serving:${FEAST_VERSION}
+    #     volumes:
+    #         - ${FEAST_ONLINE_SERVING_CONFIG}:/etc/feast/application.yml
+    #     depends_on:
+    #         - feast-core
+    #         - redis
+    #     ports:
+    #         - 6566:6566
+    #     restart: on-failure
+    #     command:
+    #         - java
+    #         - -jar
+    #         - /opt/feast/feast-serving.jar
+    #         - --spring.config.location=classpath:/application.yml,file:/etc/feast/application.yml
+    
+    # feast-jobservice:
+    #     image: gcr.io/kf-feast/feast-jobservice:${FEAST_VERSION}
+    #     depends_on:
+    #         - feast-core
+    #     ports:
+    #         - 6568:6568
+    #     volumes:
+    #         - $PWD:/shared
+    #     environment:
+    #         FEAST_CORE_URL: feast-core:6565
+    #         FEAST_SERVING_URL: feast-online-serving:6566
+    #         FEAST_SPARK_LAUNCHER: standalone
+    #         FEAST_SPARK_STANDALONE_MASTER: local
+    #         FEAST_SPARK_HOME: /usr/local/spark
+    #         FEAST_SPARK_STAGING_LOCATION: file:///shared/staging
+    #         FEAST_HISTORICAL_FEATURE_OUTPUT_LOCATION: file:///shared/historical_feature_output
+    #         FEAST_HISTORICAL_FEATURE_OUTPUT_FORMAT: parquet
+    #         FEAST_REDIS_HOST: redis
+    #         FEAST_SPARK_INGESTION_JAR: ${INGESTION_JAR_PATH}
+    #         FEAST_STATSD_ENABLED: "true"
+    #         FEAST_STATSD_HOST: prometheus_statsd
+    #         FEAST_STATSD_PORT: 9125
+
+    ##############################
+
+    # telegraf:
+    #     container_name: telegraf
+    #     restart: always
+    #     build: ./telegraf
+    #     depends_on: 
+    #         - influxdb
+
+    # postgres:
+    #     container_name: postgres
+    #     build: ./postgres
+    #     env_file:
+    #         - ./postgres/postgres.env
+    #     ports:
+    #         - 5432:5432
+        # volumes:
+        #         - ./volumes/postgres/data:/var/lib/postgresql/data
+                # - postgres-db-volume:/var/lib/postgresql/data
+        # healthcheck:
+        #     test: ["CMD", "pg_isready", "-U", "airflow"]
+        #     interval: 5s
+        #     retries: 5
+        # restart: always
+
+    # ORIGINAL AIRFLOW CONFIG
+    # airflow-webserver:
+    #     restart: always
+    #     container_name: airflow-webserver
+    #     image: puckel/docker-airflow:1.10.9
+    #     depends_on:
+    #         - postgres
+    #         - redis
+    #     environment:
+    #         - LOAD_EX=n
+    #         - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
+    #         - EXECUTOR=Celery
+    #         - POSTGRES_USER=airflow
+    #         - POSTGRES_PASSWORD=airflow
+    #         - POSTGRES_DB=airflow
+    #         - REDIS_PASSWORD=redispass
+        # volumes:
+        #     - ./airflow/dags:/usr/local/airflow/dags
+        #     Uncomment to include custom plugins
+        #     - ./plugins:/usr/local/airflow/plugins
+        # ports:
+        #     - "8080:8080"
+        # command: webserver
+        # healthcheck:
+        #     test: ["CMD-SHELL", "[ -f /usr/local/airflow/airflow-webserver.pid ]"]
+        #     interval: 30s
+        #     timeout: 30s
+        #     retries: 3
+
+    # airflow-flower:
+    #     container_name: airflow-flower
+    #     image: puckel/docker-airflow:1.10.9
+    #     restart: always
+    #     depends_on:
+    #         - redis
+    #     environment:
+    #         - EXECUTOR=Celery
+    #         - REDIS_PASSWORD=redispass
+    #     ports:
+    #         - "5555:5555"
+    #     command: flower
+
+    # airflow-scheduler:
+    #     container_name: airlfow-scheduler
+    #     image: puckel/docker-airflow:1.10.9
+    #     restart: always
+    #     depends_on:
+    #         - airflow-webserver
+        # volumes:
+        #     - ./airflow/dags:/usr/local/airflow/dags
+        # Uncomment to include custom plugins
+        # - ./plugins:/usr/local/airflow/plugins
+        # environment:
+        #     - LOAD_EX=n
+        #     - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
+        #     - EXECUTOR=Celery
+        #     - POSTGRES_USER=airflow
+        #     - POSTGRES_PASSWORD=airflow
+        #     - POSTGRES_DB=airflow
+        #     - REDIS_PASSWORD=redispass
+        # command: scheduler
+
+    # airflow-worker:
+    #     container_name: airflow-worker
+    #     image: puckel/docker-airflow:1.10.9
+    #     restart: always
+    #     depends_on:
+    #         - airflow-scheduler
+        # volumes:
+        #     - ./airflow/dags:/usr/local/airflow/dags
+        #     Uncomment to include custom plugins
+        #     - ./plugins:/usr/local/airflow/plugins
+        # environment:
+        #     - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
+        #     - EXECUTOR=Celery
+        #     - POSTGRES_USER=airflow
+        #     - POSTGRES_PASSWORD=airflow
+        #     - POSTGRES_DB=airflow
+        #     - REDIS_PASSWORD=redispass
+        # command: worker
+
+    # redis:
+    #     container_name: redis
+    #     image: redis
+    #     command: redis-server --requirepass redispass
+
+    # portainer:
+    #     container_name: portainer
+    #     image: portainer/portainer
+    #     restart: always
+    #     ports:
+    #         - "9000:9000"
+    #     volumes:
+    #         - /var/run/docker.sock:/var/run/docker.sock
+    #     #     - ./volumes/portainer/data:/data
+
+
+# volumes:
+#   postgres-db-volume:
