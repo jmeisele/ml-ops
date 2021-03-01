@@ -63,7 +63,14 @@ services:
         volumes:
             - ./python-model-service-2:/python-model-service-2
         restart: always
-
+    
+    bridge-server:
+        container_name: bridge_server
+        build: ./bridge_server
+        ports:
+            - "8002:8002"
+        restart: always
+    
     postgres:
         container_name: postgres
         build: ./postgres
@@ -171,28 +178,6 @@ services:
         # command: redis-server --requirepass redispass
         restart: always
 
-    # telegraf:
-    #     container_name: telegraf
-    #     restart: always
-    #     build: ./telegraf
-    #     depends_on: 
-    #         - influxdb
-
-    # postgres:
-    #     container_name: postgres
-    #     build: ./postgres
-    #     env_file:
-    #         - ./postgres/postgres.env
-    #     ports:
-    #         - 5432:5432
-        # volumes:
-        #         - ./volumes/postgres/data:/var/lib/postgresql/data
-                # - postgres-db-volume:/var/lib/postgresql/data
-        # healthcheck:
-        #     test: ["CMD", "pg_isready", "-U", "airflow"]
-        #     interval: 5s
-        #     retries: 5
-        # restart: always
 
     airflow-webserver:
         <<: *airflow-common
@@ -242,7 +227,30 @@ services:
         command: celery flower
         restart: always
 
-# ORIGINAL AIRFLOW CONFIG
+    # telegraf:
+    #     container_name: telegraf
+    #     restart: always
+    #     build: ./telegraf
+    #     depends_on: 
+    #         - influxdb
+
+    # postgres:
+    #     container_name: postgres
+    #     build: ./postgres
+    #     env_file:
+    #         - ./postgres/postgres.env
+    #     ports:
+    #         - 5432:5432
+        # volumes:
+        #         - ./volumes/postgres/data:/var/lib/postgresql/data
+                # - postgres-db-volume:/var/lib/postgresql/data
+        # healthcheck:
+        #     test: ["CMD", "pg_isready", "-U", "airflow"]
+        #     interval: 5s
+        #     retries: 5
+        # restart: always
+
+    # ORIGINAL AIRFLOW CONFIG
     # airflow-webserver:
     #     restart: always
     #     container_name: airflow-webserver

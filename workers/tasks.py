@@ -48,7 +48,23 @@ def insert_record(ch, method, properties, body):
             },
             "time": now,
             "fields": {
-                "median_house_value": body.get("median_house_value")
+                "median_house_value": body.get("median_house_value"),
+                "median_income_in_block": body.get("request").get(
+                    "median_income_in_block"
+                ),
+                "median_house_age_in_block": body.get("request").get(
+                    "median_house_age_in_block"
+                ),
+                "average_rooms": body.get("request").get("average_rooms"),
+                "average_bedrooms": body.get("request").get(
+                    "average_bedrooms"
+                ),
+                "population_per_block": body.get("request").get(
+                    "population_per_block"
+                ),
+                "average_house_occupancy": body.get("request").get(
+                    "average_house_occupancy"
+                ),
             }
         }
     ]
