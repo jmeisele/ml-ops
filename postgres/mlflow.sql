@@ -1,3 +1,6 @@
 CREATE USER mlflow WITH PASSWORD 'metadata';
 CREATE DATABASE mlflowdb;
 GRANT ALL PRIVILEGES ON DATABASE mlflowdb TO mlflow;
+-- CREATE USER postgres WITH PASWORD 'postgres';
+-- CREATE DATABASE postgres;
+-- GRANT ALL PRIVILEGES ON DATABASE postgres TO postgres;

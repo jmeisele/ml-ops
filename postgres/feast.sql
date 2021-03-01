@@ -1,0 +1,3 @@
+CREATE ADMIN USER postgres WITH PASWORD 'password';
+CREATE DATABASE postgres;
+GRANT ALL PRIVILEGES ON DATABASE postgres TO postgres;

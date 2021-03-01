@@ -7,7 +7,7 @@ Get an MLOps platform up and going fast!
 - [x] Test stable Airflow REST API from postman
 - [x] Configure MLFlow connection to postgresql
   - [x] mlflowdb is NOT getting created on postgresql start up
-- [ ] Create bridge "server" to POST to Airflow rest API, simple flask app will work
+- [x] Create bridge "server" to POST to Airflow rest API, simple flask app will work
 - [ ] Telegraf to collect metrics and send to influxDB such as RabbitMQ, ml api health
 - [ ] Create Grafana dashboard:
   - [ ] Model predictions
