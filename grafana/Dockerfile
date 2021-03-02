@@ -54,6 +54,9 @@ RUN apk add --no-cache ca-certificates bash tzdata && \
 
 COPY conf ./conf
 
+COPY ./grafana-piechart-panel /var/lib/grafana/plugins
+COPY ./mlopsdemo.json /etc/grafana/provisioning/dashboards
+
 RUN mkdir -p "$GF_PATHS_HOME/.aws" && \
     addgroup -S -g $GF_GID grafana && \
     adduser -S -u $GF_UID -G grafana grafana && \
@@ -67,8 +70,6 @@ RUN mkdir -p "$GF_PATHS_HOME/.aws" && \
     cp "$GF_PATHS_HOME/conf/ldap.toml" /etc/grafana/ldap.toml && \
     chown -R grafana:grafana "$GF_PATHS_DATA" "$GF_PATHS_HOME/.aws" "$GF_PATHS_LOGS" "$GF_PATHS_PLUGINS" "$GF_PATHS_PROVISIONING" && \
     chmod -R 777 "$GF_PATHS_DATA" "$GF_PATHS_HOME/.aws" "$GF_PATHS_LOGS" "$GF_PATHS_PLUGINS" "$GF_PATHS_PROVISIONING"
-
-COPY ./mlopsdemo.json $GF_PATHS_PROVISIONING/dashboards
 
 COPY --from=go-builder /go/src/github.com/grafana/grafana/bin/linux-amd64/grafana-server /go/src/github.com/grafana/grafana/bin/linux-amd64/grafana-cli ./bin/
 COPY --from=js-builder /usr/src/app/public ./public
