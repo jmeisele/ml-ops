@@ -1,5 +1,6 @@
 import json
 import requests
+import pprint
 
 from dag_mapping import config_map
 
@@ -13,7 +14,8 @@ app = Flask(__name__)
 def reroute():
     # Decode the request body
     body = request.data.decode("utf-8")
-    logger.debug(body)
+    logger.debug(pprint.pprint(body))
+    logger.debug(type(body)
     url = "http://airflow-webserver:8080/api/dags/example_bash_operator/dagRuns"
     payload = {"conf": {}}
     # headers = 
