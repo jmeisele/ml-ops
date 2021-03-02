@@ -114,7 +114,6 @@ services:
         ports: 
             - "5000:5000"
         command: 
-            # mlflow server --backend-store-uri postgresql://mlflow:metadata@postgres:5432/mlflowdb --default-artifact-root file://mlflow/artifacts --host 0.0.0.0 -p 5000
             mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root file://mlflow/artifacts --host 0.0.0.0 -p 5000
         restart: always
     

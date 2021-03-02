@@ -1,5 +1,5 @@
 feast:
-  core-host: core
+  core-host: feast-core
   active_store: online
   stores:
     - name: online

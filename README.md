@@ -8,6 +8,7 @@ Get an MLOps platform up and going fast!
 - [x] Configure MLFlow connection to postgresql
   - [x] mlflowdb is NOT getting created on postgresql start up
 - [x] Create bridge "server" to POST to Airflow rest API, simple flask app will work
+- [ ] Google Feast Feature Store started
 - [x] Create Grafana dashboard:
   - [x] Model predictions
   - [ ] RabbitMQ queue depth
@@ -72,7 +73,7 @@ Make sure docker is running and you have [Docker Compose](https://docs.docker.co
 - redis: Cache
 - airflow: Workflow Orchestrator
 - feast: Feature Store
-- bridge server: Recives webhook from Grafana and translates to Airflow REST API
+- bridge server: Receives webhook from Grafana and translates to Airflow REST API
 
 __ProTip__ Check the status/health of all running containers using Portainer
 
