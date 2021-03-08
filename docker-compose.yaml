@@ -82,6 +82,18 @@ services:
             interval: 5s
             retries: 5
         restart: always
+    
+    prometheus:
+        container_name: prometheus
+        build: ./prometheus
+        depends_on:
+            - python-model-service1
+            - python-model-service2
+        ports:
+            - "9090:9090"
+        # volumes:
+        #   - ./prometheus/prometheus.yml 
+        restart: always
 
     rabbitmq:
         container_name: rabbitmq
@@ -281,13 +293,6 @@ services:
     #         FEAST_STATSD_PORT: 9125
 
     ##############################
-
-    # telegraf:
-    #     container_name: telegraf
-    #     restart: always
-    #     build: ./telegraf
-    #     depends_on: 
-    #         - influxdb
 
     # postgres:
     #     container_name: postgres
