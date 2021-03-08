@@ -2,21 +2,30 @@
 Get an MLOps platform up and going fast!
 
 # TODOs
+Docker Compose:
 - [x] Install & Configure Airflow 2.0 service
 - [x] Write dummy retrain DAG
 - [x] Test stable Airflow REST API from postman
 - [x] Configure MLFlow connection to postgresql
   - [x] mlflowdb is NOT getting created on postgresql start up
 - [x] Create bridge "server" to POST to Airflow rest API, simple flask app will work
-- [ ] Prometheus integration with FastAPI
-- [ ] ML Monitoring
-- [ ] Nix influxDB?
-- [ ] Locust for load testing
+- [x] Prometheus integration with FastAPI for service metrics
+  - [x] Config scrape intervals and metrics
+- [x] RabbitMQ for distributed tasks
+- [x] RabbitMQ workers to pull from queue and write to InfluxDB
+- [x] InfluxDB to record features and predictions
+- [ ] Locust for load testing and simulating production traffic
 - [ ] Google Feast Feature Store started
 - [ ] Amundsen for Feast UI?
-- [x] Create Grafana dashboard:
-  - [x] Model predictions
-  - [ ] RabbitMQ queue depth
+- [x] ML Monitoring
+    - [x] Create Grafana dashboard:
+        - [x] Model specific metrics
+          - [ ] Feature distributions (InfluxDB)
+          - [ ] Predictions (InfluxDB)
+        - [ ] RabbitMQ queue depth (Prometheus?)
+        - [ ] Service metrics
+          - [ ] Request Latency (Prometheus)
+          - [ ] Request Throughput (Prometheus)
   - [x] Webhook on alarm condition POST to bridge server
 - [ ] K8S Deployment
 
