@@ -8,11 +8,17 @@ Get an MLOps platform up and going fast!
 - [x] Configure MLFlow connection to postgresql
   - [x] mlflowdb is NOT getting created on postgresql start up
 - [x] Create bridge "server" to POST to Airflow rest API, simple flask app will work
+- [ ] Prometheus integration with FastAPI
+- [ ] ML Monitoring
+- [ ] Nix influxDB?
+- [ ] Locust for load testing
 - [ ] Google Feast Feature Store started
+- [ ] Amundsen for Feast UI?
 - [x] Create Grafana dashboard:
   - [x] Model predictions
   - [ ] RabbitMQ queue depth
   - [x] Webhook on alarm condition POST to bridge server
+- [ ] K8S Deployment
 
 
 __To run__:
