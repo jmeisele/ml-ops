@@ -1,4 +1,5 @@
-FROM python:stretch
+# FROM python:stretch
+FROM python:3.8
 
 COPY . /workers
 
