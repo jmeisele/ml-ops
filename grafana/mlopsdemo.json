@@ -777,7 +777,7 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 4,
+        "w": 3,
         "x": 0,
         "y": 18
       },
@@ -850,8 +850,8 @@
       "fillGradient": 0,
       "gridPos": {
         "h": 8,
-        "w": 11,
-        "x": 4,
+        "w": 8,
+        "x": 3,
         "y": 18
       },
       "id": 13,
@@ -906,8 +906,9 @@
       },
       "yaxes": [
         {
+          "decimals": null,
           "format": "short",
-          "label": "Milliseconds",
+          "label": "ms",
           "logBase": 1,
           "max": null,
           "min": null,
@@ -936,8 +937,100 @@
       "fillGradient": 0,
       "gridPos": {
         "h": 8,
-        "w": 9,
-        "x": 15,
+        "w": 7,
+        "x": 11,
+        "y": 18
+      },
+      "id": 19,
+      "interval": "",
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "sum(rate(fastapi_model_http_requests_total{status=\"2xx\"}[5m]))",
+          "instant": false,
+          "legendFormat": "{status=\"2xx\"}",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(fastapi_model_http_requests_total{status=\"4xx\"}[5m]))",
+          "legendFormat": "{status=\"4xx\"}",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Request Throughput",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": "RPS",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
         "y": 18
       },
       "id": 17,
@@ -1020,7 +1113,7 @@
     "list": []
   },
   "time": {
-    "from": "now-30m",
+    "from": "now-15m",
     "to": "now"
   },
   "timepicker": {
@@ -1040,5 +1133,5 @@
   "timezone": "",
   "title": "MLOps Demo",
   "uid": "0WqvRlsGz",
-  "version": 14
+  "version": 16
 }

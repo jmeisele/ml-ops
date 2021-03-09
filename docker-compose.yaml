@@ -187,6 +187,13 @@ services:
             retries: 50
         # command: redis-server --requirepass redispass
         restart: always
+    
+    locust:
+        container_name: locust
+        build: ./locust
+        ports:
+          - "8089:8089"
+        restart: always
 
     # Airflow Workflow Orchestrator
     airflow-webserver:

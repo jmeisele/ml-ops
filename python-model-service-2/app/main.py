@@ -19,7 +19,6 @@ def get_app() -> FastAPI:
         include_in_schema=False,
         should_gzip=False
     )
-    # fast_app.include_router(api_router, prefix=API_PREFIX)
     fast_app.include_router(api_router)
     fast_app.add_event_handler("startup", start_app_handler(fast_app))
     fast_app.add_event_handler("shutdown", stop_app_handler(fast_app))

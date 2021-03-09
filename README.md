@@ -20,12 +20,12 @@ Docker Compose:
 - [x] ML Monitoring
     - [x] Create Grafana dashboard:
         - [x] Model specific metrics
-          - [ ] Feature distributions (InfluxDB)
-          - [ ] Predictions (InfluxDB)
-        - [ ] RabbitMQ queue depth (Prometheus?)
-        - [ ] Service metrics
-          - [ ] Request Latency (Prometheus)
-          - [ ] Request Throughput (Prometheus)
+          - [x] Feature distributions (InfluxDB)
+          - [x] Predictions (InfluxDB)
+        - [x] RabbitMQ queue depth (Prometheus?)
+        - [x] Service metrics
+          - [x] Request Latency (Prometheus)
+          - [x] Request Throughput (Prometheus)
   - [x] Webhook on alarm condition POST to bridge server
 - [ ] K8S Deployment
 
@@ -81,6 +81,8 @@ Make sure docker is running and you have [Docker Compose](https://docs.docker.co
 - postgresql: RDBMS
 - rabbitmq: Message Queue
 - rabbitmq workers: Workers listening to RabbitMQ
+- locust: Load testing and simulate production traffic
+- prometheus: Metrics scraping
 - mlflow: Machine Learning Experiment Management
 - influxdb: Time Series Database
 - chronograf: Admin & WebUI for InxfluxDB
