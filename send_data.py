@@ -25,5 +25,4 @@ for i in range(len(data.data)):
             }
     # POST request to our API
     requests.post(url="http://localhost/model/predict", json=body)
-    # requests.post(url="http://localhost:8002/route", json=body)
-    time.sleep(.1)
+    time.sleep(1)

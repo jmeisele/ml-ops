@@ -28,7 +28,7 @@ Docker Compose:
         - [x] Model specific metrics
           - [x] Feature distributions (InfluxDB)
           - [x] Predictions (InfluxDB)
-        - [x] RabbitMQ queue depth (Prometheus?)
+        - [x] RabbitMQ queue depth (Prometheus)
         - [x] Service metrics
           - [x] Request Latency (Prometheus)
           - [x] Request Throughput (Prometheus)
@@ -73,7 +73,8 @@ Make sure docker is running and you have [Docker Compose](https://docs.docker.co
     }'  
     http://localhost/model/predict
     ```
-6. You can also simluate production traffic with locust, __but__ keep in mind you have a lot of services running on your local machine, you would never deploy a production ML API on your local machine and handle production traffic. 
+6. You can also start the utility ```send_data.py``` which sends a POST request every 0.1 seconds
+7. If you are so bold, you can also simluate production traffic using locust, __but__ keep in mind you have a lot of services running on your local machine, you would never deploy a production ML API on your local machine to handle production traffic. 
 
 ## Platform Architecture
 ![MLOps](docs/mlops_level1.drawio.svg)

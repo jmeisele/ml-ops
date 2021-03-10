@@ -1,13 +1,10 @@
 """
 Author: Jason Eisele
 Date: February 26, 2021
-Scope: Map of DAGs to push POST requests to Airflow from Grafana
+Scope: Map of DAGs to push POST requests to Airflow from Grafana 
+        based on alert rules
 """
 
-config_map = {
-
+dag_config_map = {
+    "Predicted Housing Values alert": "example_ml_retrain"
 }
-
-class DAGConfig:
-    def __init__(self):
-        pass
