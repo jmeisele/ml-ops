@@ -16,6 +16,7 @@ def reroute():
     body = request.data.decode("utf-8")
     # body = ast.literal_eval(body)
     logger.debug(body)
+    data = "hello Im data"
 
     # Set the URL depending on the dag config
     url = "http://airflow-webserver:8080/api/dags/example_bash_operator/dagRuns"

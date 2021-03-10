@@ -66,6 +66,8 @@ services:
         build: ./bridge_server
         ports:
             - "8002:8002"
+        volumes:
+            - ./bridge_server/app.py:/app/app.py
         restart: always
     
     postgres:
@@ -140,25 +142,19 @@ services:
             - 2003:2003
         env_file:
             - ./influxdb/influxdb.env
-        # volumes:
-        #     - ./volumes/influxdb/data:/var/lib/influxdb
-        #     - ./influxdb/backups/influxdb/db:/var/lib/influxdb/backup
         restart: always
 
-    chronograf:
-        container_name: chronograf
-        image: chronograf:1.8.4-alpine
-        depends_on:
-            - influxdb
-        user: "0"
-        ports:
-            - 8888:8888
-        env_file:
-            - ./chronograf/chronograf.env
-        # volumes:
-        #     - ./volumes/chronograf/data:/var/lib/chronograf
-        #     - ./volumes/chronograf/log:/var/log/chronograf
-        restart: always
+    # chronograf:
+    #     container_name: chronograf
+    #     image: chronograf:1.8.4-alpine
+    #     depends_on:
+    #         - influxdb
+    #     user: "0"
+    #     ports:
+    #         - 8888:8888
+    #     env_file:
+    #         - ./chronograf/chronograf.env
+    #     restart: always
 
     grafana:
         container_name: grafana
@@ -170,9 +166,6 @@ services:
             - 3000:3000
         env_file:
             - ./grafana/grafana.env
-        # volumes:
-        #     - ./volumes/grafana/data:/var/lib/grafana
-        #     - ./volumes/grafana/log:/var/log/grafana
         restart: always
     
     redis:
@@ -185,7 +178,6 @@ services:
             interval: 5s
             timeout: 30s
             retries: 50
-        # command: redis-server --requirepass redispass
         restart: always
     
     locust:

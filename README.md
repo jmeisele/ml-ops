@@ -1,5 +1,11 @@
 # MLOps
-Get an MLOps platform up and going fast!
+Cloud agnostic tech stack for an MLOps platform
+
+"We'll build a pipeline - after we deploy the model."
+
+![Wink](docs/wink.gif)
+
+```Model drift will hit when it's least convenient for you```
 
 # TODOs
 Docker Compose:
@@ -14,7 +20,7 @@ Docker Compose:
 - [x] RabbitMQ for distributed tasks
 - [x] RabbitMQ workers to pull from queue and write to InfluxDB
 - [x] InfluxDB to record features and predictions
-- [ ] Locust for load testing and simulating production traffic
+- [x] Locust for load testing and simulating production traffic
 - [ ] Google Feast Feature Store started
 - [ ] Amundsen for Feast UI?
 - [x] ML Monitoring
@@ -48,11 +54,11 @@ Make sure docker is running and you have [Docker Compose](https://docs.docker.co
     user: _airflow_
 
     password : _airflow_
-4. Run docker compose
+4. Build our images and launch with docker compose
     ```bash
-    docker-compose up --build
+    docker-compose pull && docker-compose up
     ```
-5. Open up a new terminal window and send a POST request to our model service API endpoint
+5. Send a POST request to our model service API endpoint
     ```bash
     curl -v -H "Content-Type: application/json" -X POST -d
     '{
@@ -65,8 +71,9 @@ Make sure docker is running and you have [Docker Compose](https://docs.docker.co
         "block_latitude": 37.88,
         "block_longitude": -122.23
     }'  
-    http://localhost/api/model/predict
+    http://localhost/model/predict
     ```
+6. You can also simluate production traffic with locust, __but__ keep in mind you have a lot of services running on your local machine, you would never deploy a production ML API on your local machine and handle production traffic. 
 
 ## Platform Architecture
 ![MLOps](docs/mlops_level1.drawio.svg)
@@ -91,10 +98,6 @@ Make sure docker is running and you have [Docker Compose](https://docs.docker.co
 - airflow: Workflow Orchestrator
 - feast: Feature Store
 - bridge server: Receives webhook from Grafana and translates to Airflow REST API
-
-__ProTip__ Check the status/health of all running containers using Portainer
-
-[Portainer](http://localhost:9000)
 
 If you found this repo helpful, a [small donation](https://www.buymeacoffee.com/VlduzAG) would be greatly appreciated. 
 All proceeds go towards coffee, and all coffee goes towards more code.
