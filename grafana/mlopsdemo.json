@@ -32,13 +32,36 @@
       "type": "row"
     },
     {
+      "dashboardFilter": "",
+      "dashboardTags": [],
+      "folderId": null,
+      "gridPos": {
+        "h": 8,
+        "w": 3,
+        "x": 0,
+        "y": 1
+      },
+      "id": 21,
+      "limit": 10,
+      "nameFilter": "",
+      "onlyAlertsOnDashboard": false,
+      "options": {},
+      "show": "current",
+      "sortOrder": 1,
+      "stateFilter": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "ML API Health",
+      "type": "alertlist"
+    },
+    {
       "alert": {
         "alertRuleTags": {},
         "conditions": [
           {
             "evaluator": {
               "params": [
-                1918919
+                2050157
               ],
               "type": "gt"
             },
@@ -63,6 +86,7 @@
         "for": "5m",
         "frequency": "1m",
         "handler": 1,
+        "message": "This is coming from Grafana",
         "name": "Predicted Housing Values alert",
         "noDataState": "alerting",
         "notifications": [
@@ -74,6 +98,12 @@
           },
           {
             "uid": "yE-l-9sMz"
+          },
+          {
+            "uid": "r-uLZJ8Gz"
+          },
+          {
+            "uid": "xKmdJ1UGz"
           }
         ]
       },
@@ -86,8 +116,8 @@
       "fillGradient": 1,
       "gridPos": {
         "h": 8,
-        "w": 24,
-        "x": 0,
+        "w": 21,
+        "x": 3,
         "y": 1
       },
       "id": 2,
@@ -212,7 +242,7 @@
           "fill": true,
           "line": true,
           "op": "gt",
-          "value": 1918919
+          "value": 2050157
         }
       ],
       "timeFrom": null,
@@ -262,7 +292,7 @@
           {
             "evaluator": {
               "params": [
-                2.6
+                10
               ],
               "type": "gt"
             },
@@ -287,6 +317,7 @@
         "for": "5m",
         "frequency": "1m",
         "handler": 1,
+        "message": "This is from Feature A monitoring",
         "name": "Feature A Monitoring alert",
         "noDataState": "alerting",
         "notifications": [
@@ -295,6 +326,12 @@
           },
           {
             "uid": "yE-l-9sMz"
+          },
+          {
+            "uid": "r-uLZJ8Gz"
+          },
+          {
+            "uid": "xKmdJ1UGz"
           }
         ]
       },
@@ -382,7 +419,7 @@
           "fill": true,
           "line": true,
           "op": "gt",
-          "value": 2.6
+          "value": 10
         }
       ],
       "timeFrom": null,
@@ -432,7 +469,7 @@
           {
             "evaluator": {
               "params": [
-                2.4
+                10
               ],
               "type": "gt"
             },
@@ -457,6 +494,7 @@
         "for": "5m",
         "frequency": "1m",
         "handler": 1,
+        "message": "This is coming from feature B monitoring",
         "name": "Feature B Monitoring alert",
         "noDataState": "alerting",
         "notifications": [
@@ -465,6 +503,12 @@
           },
           {
             "uid": "yE-l-9sMz"
+          },
+          {
+            "uid": "r-uLZJ8Gz"
+          },
+          {
+            "uid": "xKmdJ1UGz"
           }
         ]
       },
@@ -552,7 +596,7 @@
           "fill": true,
           "line": true,
           "op": "gt",
-          "value": 2.4
+          "value": 10
         }
       ],
       "timeFrom": null,
@@ -602,7 +646,7 @@
           {
             "evaluator": {
               "params": [
-                9
+                10
               ],
               "type": "gt"
             },
@@ -627,11 +671,18 @@
         "for": "5m",
         "frequency": "1m",
         "handler": 1,
+        "message": "This is coming from feature C monitoring",
         "name": "Feature C Monitoring alert",
         "noDataState": "alerting",
         "notifications": [
           {
             "uid": "yE-l-9sMz"
+          },
+          {
+            "uid": "r-uLZJ8Gz"
+          },
+          {
+            "uid": "xKmdJ1UGz"
           }
         ]
       },
@@ -702,7 +753,7 @@
           "fill": true,
           "line": true,
           "op": "gt",
-          "value": 9
+          "value": 10
         }
       ],
       "timeFrom": null,
@@ -968,13 +1019,13 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(rate(fastapi_model_http_requests_total{status=\"2xx\"}[5m]))",
+          "expr": "sum(rate(fastapi_model_http_requests_total{status=\"2xx\"}[1m]))",
           "instant": false,
           "legendFormat": "{status=\"2xx\"}",
           "refId": "A"
         },
         {
-          "expr": "sum(rate(fastapi_model_http_requests_total{status=\"4xx\"}[5m]))",
+          "expr": "sum(rate(fastapi_model_http_requests_total{status=\"4xx\"}[1m]))",
           "legendFormat": "{status=\"4xx\"}",
           "refId": "B"
         }
@@ -1133,5 +1184,5 @@
   "timezone": "",
   "title": "MLOps Demo",
   "uid": "0WqvRlsGz",
-  "version": 16
+  "version": 9
 }

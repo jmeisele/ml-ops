@@ -66,6 +66,9 @@ services:
         build: ./bridge_server
         ports:
             - "8002:8002"
+        volumes:
+            - ./bridge_server/app.py:/app/app.py
+            - ./bridge_server/dag_mapping.py:/app/dag_mapping.py
         restart: always
     
     postgres:
@@ -75,8 +78,8 @@ services:
             POSTGRES_USER: airflow
             POSTGRES_PASSWORD: airflow
             POSTGRES_DB: airflow
-        # volumes:
-        #     - postgres-db-volume:/var/lib/postgresql/data
+        volumes:
+            - postgres-db-volume:/var/lib/postgresql/data
         healthcheck:
             test: ["CMD", "pg_isready", "-U", "airflow"]
             interval: 5s
@@ -140,25 +143,19 @@ services:
             - 2003:2003
         env_file:
             - ./influxdb/influxdb.env
-        # volumes:
-        #     - ./volumes/influxdb/data:/var/lib/influxdb
-        #     - ./influxdb/backups/influxdb/db:/var/lib/influxdb/backup
         restart: always
 
-    chronograf:
-        container_name: chronograf
-        image: chronograf:1.8.4-alpine
-        depends_on:
-            - influxdb
-        user: "0"
-        ports:
-            - 8888:8888
-        env_file:
-            - ./chronograf/chronograf.env
-        # volumes:
-        #     - ./volumes/chronograf/data:/var/lib/chronograf
-        #     - ./volumes/chronograf/log:/var/log/chronograf
-        restart: always
+    # chronograf:
+    #     container_name: chronograf
+    #     image: chronograf:1.8.4-alpine
+    #     depends_on:
+    #         - influxdb
+    #     user: "0"
+    #     ports:
+    #         - 8888:8888
+    #     env_file:
+    #         - ./chronograf/chronograf.env
+    #     restart: always
 
     grafana:
         container_name: grafana
@@ -170,9 +167,6 @@ services:
             - 3000:3000
         env_file:
             - ./grafana/grafana.env
-        # volumes:
-        #     - ./volumes/grafana/data:/var/lib/grafana
-        #     - ./volumes/grafana/log:/var/log/grafana
         restart: always
     
     redis:
@@ -185,7 +179,6 @@ services:
             interval: 5s
             timeout: 30s
             retries: 50
-        # command: redis-server --requirepass redispass
         restart: always
     
     locust:
@@ -319,102 +312,6 @@ services:
         #     retries: 5
         # restart: always
 
-    # ORIGINAL AIRFLOW CONFIG
-    # airflow-webserver:
-    #     restart: always
-    #     container_name: airflow-webserver
-    #     image: puckel/docker-airflow:1.10.9
-    #     depends_on:
-    #         - postgres
-    #         - redis
-    #     environment:
-    #         - LOAD_EX=n
-    #         - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
-    #         - EXECUTOR=Celery
-    #         - POSTGRES_USER=airflow
-    #         - POSTGRES_PASSWORD=airflow
-    #         - POSTGRES_DB=airflow
-    #         - REDIS_PASSWORD=redispass
-        # volumes:
-        #     - ./airflow/dags:/usr/local/airflow/dags
-        #     Uncomment to include custom plugins
-        #     - ./plugins:/usr/local/airflow/plugins
-        # ports:
-        #     - "8080:8080"
-        # command: webserver
-        # healthcheck:
-        #     test: ["CMD-SHELL", "[ -f /usr/local/airflow/airflow-webserver.pid ]"]
-        #     interval: 30s
-        #     timeout: 30s
-        #     retries: 3
 
-    # airflow-flower:
-    #     container_name: airflow-flower
-    #     image: puckel/docker-airflow:1.10.9
-    #     restart: always
-    #     depends_on:
-    #         - redis
-    #     environment:
-    #         - EXECUTOR=Celery
-    #         - REDIS_PASSWORD=redispass
-    #     ports:
-    #         - "5555:5555"
-    #     command: flower
-
-    # airflow-scheduler:
-    #     container_name: airlfow-scheduler
-    #     image: puckel/docker-airflow:1.10.9
-    #     restart: always
-    #     depends_on:
-    #         - airflow-webserver
-        # volumes:
-        #     - ./airflow/dags:/usr/local/airflow/dags
-        # Uncomment to include custom plugins
-        # - ./plugins:/usr/local/airflow/plugins
-        # environment:
-        #     - LOAD_EX=n
-        #     - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
-        #     - EXECUTOR=Celery
-        #     - POSTGRES_USER=airflow
-        #     - POSTGRES_PASSWORD=airflow
-        #     - POSTGRES_DB=airflow
-        #     - REDIS_PASSWORD=redispass
-        # command: scheduler
-
-    # airflow-worker:
-    #     container_name: airflow-worker
-    #     image: puckel/docker-airflow:1.10.9
-    #     restart: always
-    #     depends_on:
-    #         - airflow-scheduler
-        # volumes:
-        #     - ./airflow/dags:/usr/local/airflow/dags
-        #     Uncomment to include custom plugins
-        #     - ./plugins:/usr/local/airflow/plugins
-        # environment:
-        #     - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
-        #     - EXECUTOR=Celery
-        #     - POSTGRES_USER=airflow
-        #     - POSTGRES_PASSWORD=airflow
-        #     - POSTGRES_DB=airflow
-        #     - REDIS_PASSWORD=redispass
-        # command: worker
-
-    # redis:
-    #     container_name: redis
-    #     image: redis
-    #     command: redis-server --requirepass redispass
-
-    # portainer:
-    #     container_name: portainer
-    #     image: portainer/portainer
-    #     restart: always
-    #     ports:
-    #         - "9000:9000"
-    #     volumes:
-    #         - /var/run/docker.sock:/var/run/docker.sock
-    #     #     - ./volumes/portainer/data:/data
-
-
-# volumes:
-#   postgres-db-volume:
+volumes:
+  postgres-db-volume:
