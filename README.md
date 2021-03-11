@@ -91,6 +91,7 @@ Make sure docker is running and you have [Docker Compose](https://docs.docker.co
 - rabbitmq workers: Workers listening to RabbitMQ
 - locust: Load testing and simulate production traffic
 - prometheus: Metrics scraping
+- minio: Object storage
 - mlflow: Machine Learning Experiment Management
 - influxdb: Time Series Database
 - chronograf: Admin & WebUI for InxfluxDB

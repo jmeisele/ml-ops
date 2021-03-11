@@ -13,6 +13,9 @@ x-airflow-common:
     AIRFLOW__CORE__LOAD_EXAMPLES: 'true'
     AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres/airflow
     AIRFLOW__CELERY__BROKER_URL: redis://:@redis:6379/0
+    MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+    AWS_ACCESS_KEY_ID: minioadmin
+    AWS_SECRET_ACCESS_KEY: minioadmin
   volumes:
     - ./airflow/dags:/opt/airflow/dags
     - ./airflow/logs:/opt/airflow/logs
@@ -127,14 +130,34 @@ services:
     mlflow:
         container_name: mlflow-server
         depends_on:
-            - postgres
+            # - postgres
+            - minio
         build: ./mlflow
+        environment:
+            MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+            AWS_ACCESS_KEY_ID: minioadmin
+            AWS_SECRET_ACCESS_KEY: minioadmin
         ports: 
             - "5000:5000"
         command: 
-            mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root file://mlflow/artifacts --host 0.0.0.0 -p 5000
+            # mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root file://mlflow/artifacts --host 0.0.0.0 -p 5000
+            mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root s3://mlflow --host 0.0.0.0 -p 5000
         restart: always
     
+    minio:
+        container_name: minio
+        image: minio/minio
+        ports:
+          - "9000:9000"
+        environment:
+            AWS_ACCESS_KEY_ID: minioadmin
+            AWS_SECRET_ACCESS_KEY: minioadmin
+        volumes:
+            - data:/data
+        command:
+            server /data
+        restart: always
+
     influxdb:
         container_name: influxdb
         build: ./influxdb
@@ -316,3 +339,4 @@ services:
 
 volumes:
   postgres-db-volume:
+  data:

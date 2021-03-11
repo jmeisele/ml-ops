@@ -7,14 +7,15 @@ from airflow.operators.python import PythonOperator
 from airflow.models import Variable
 import sklearn
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
 import pandas_profiling as pp
 import pandas as pd
 import mlflow
+import numpy as np
+from mlflow import log_metric, log_param, log_artifacts
 # from mlflow.sklearn import save_model
-# from mlflow import log_metric, log_param, log_artifacts
 
 
 default_args = {
@@ -46,7 +47,6 @@ def pull_data():
         "Longitude": "block_longitude",
         "MedHouseVal": "median_house_value",
     }
-    global dataset
     dataset = data.rename(columns=feature_columns)
     dataset.to_csv("raw_data.csv")
     return "Pull data done!"
@@ -99,9 +99,10 @@ def train_model():
     mlflow.set_tracking_uri("http://mlflow:5000")
     # Give your experiment a name
     mlflow.set_experiment(experiment_name="ml-ops-demo")
-    with mlflow.start_run() as run:
-        model.fit(X_train, y_train)
-        mlflow.log_artifact("raw_data_profile.html")
+    mlflow.start_run()
+    # with mlflow.start_run() as run:
+    model.fit(X_train, y_train)
+    mlflow.log_artifact("raw_data_profile.html")
 
     with open("model.pkl", "wb") as file:
         pickle.dump(model, file)
@@ -128,8 +129,23 @@ def validate_model():
 
     with open("X_test.pkl", "rb") as f:
         X_test = pickle.load(f)
-    y_pred = model.predict(X_test)
-    print(accuracy_score(y_test, y_pred))
+
+    # Model Evaluation
+    y_pred_test = model.predict(X_test)
+    holdout_mse = mean_squared_error(y_test, y_pred_test)
+    holdout_rmse = np.sqrt(holdout_mse)
+    holdout_mae = mean_absolute_error(y_test, y_pred_test)
+    holdout_med = (y_test - y_pred_test).median()
+    holdout_r2 = r2_score(y_test, y_pred_test)
+
+    # Log our testing metrics, autolog takes care of the training metrics
+    mlflow.log_metric("testing_rmse", holdout_rmse)
+    mlflow.log_metric("testing_mae", holdout_mae)
+    mlflow.log_metric("testing_mse", holdout_mse)
+    mlflow.log_metric("testing_median_error", holdout_med)
+    mlflow.log_metric("testing_r2_score", holdout_r2)
+
+    mlflow.end_run()
     return "Even performs great on new data"
 
 
