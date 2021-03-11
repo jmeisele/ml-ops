@@ -10,8 +10,14 @@ from sklearn.model_selection import train_test_split
 import pandas_profiling as pp
 import pandas as pd
 import mlflow
-from mlflow.sklearn import save_model
-from mlflow import log_metric, log_param, log_artifacts
+# from mlflow.sklearn import save_model
+# from mlflow import log_metric, log_param, log_artifacts
+
+
+# GLOBAL scope vars needed to pass data between tasks without using XComs
+dataset = None
+X_train, X_test, y_train, y_test = None, None, None, None
+model = None
 
 default_args = {
     "owner": "Jason Eisele",
@@ -42,18 +48,22 @@ def pull_data():
         "Longitude": "block_longitude",
         "MedHouseVal": "median_house_value",
     }
+    global dataset
     dataset = data.rename(columns=feature_columns)
-    dataset.to_csv("dataset.csv")
     return dataset
 
 
 def validate_data():
-    valid_data = "Yep, looks good"
-    return valid_data
+    # Slot in great expectations here?
+    global dataset
+    profile_report = pp.ProfileReport(dataset)
+    profile_report.to_file("raw_data_profile.html")
+    return profile_report
 
 
 def prep_data():
-    df = pd.read_csv("dataset.csv")
+    global dataset
+    df = dataset
     features = [
         "median_income_in_block",
         "median_house_age_in_block",
@@ -66,30 +76,38 @@ def prep_data():
     ]
     X = df[features]
     y = df["median_house_value"]
+
+    global X_train, X_test, y_train, y_test
+
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     return X_train, X_test, y_train, y_test
 
 
-def train_model(X_train, y_train):
+def train_model():
+    global model
+
     model = sklearn.linear_model.LinearRegression()
     "Log Hyperparameters, Metrics & Model to MLFlow"
     mlflow.sklearn.autolog()
-    mlflow.set_tracking_uri("https://mlflow.ds.us-east-1.shipt.com/")
+    mlflow.set_tracking_uri("http://mlflow:5000")
     # Give your experiment a name
     mlflow.set_experiment(experiment_name="ml-ops-demo")
     with mlflow.start_run() as run:
         model.fit(X_train, y_train)
-        mlflow.log_artifact("Raw_Data_Profile.html")
+        mlflow.log_artifact("raw_data_profile.html")
     return model
 
 
-def evaluate_model(model):
+def evaluate_model():
+    global model
+    global X_train, y_train
     model_evaluated = "Looks great so far, let's check new data"
     model.score(X_train, y_train)
     return model_evaluated
 
 
-def validate_model(model, X_test, y_test):
+def validate_model():
+    global model
     model_validated = "Even performs great on new data"
     return model_validated
 
