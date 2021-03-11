@@ -1,25 +1,15 @@
 FROM python:3.7-slim-buster
-# Install python packages
+RUN apt-get update && apt-get upgrade -y && apt-get install -y git
 RUN pip3 install mlflow 
 RUN pip3 install boto3 
 RUN pip3 install psycopg2-binary
-
-WORKDIR /app
-
-COPY . /app
-
-RUN apt-get update
-
+COPY . /mlflow
+WORKDIR /mlflow
+RUN mkdir artifacts
+RUN chmod -R 777 ./artifacts
 EXPOSE 5000
 
 # Run tracking uri with postgres backend for metadata
 # ENTRYPOINT [ "./startup.sh" ]
 
-CMD ["mlflow", "server", "--port", "5000", "--host", "0.0.0.0"]
-
-# CMD ["mlflow server", \
-# "--default-artifact-root s3://data-science-mlflow-artifacts", \
-# "--backend-store-uri 'postgresql://postgres:st4rw4rs@mlflow-db.ciqwbpcomohb.us-east-1.rds.amazonaws.com:5432/mlflow_meta'", \
-# "--host 0.0.0.0", \
-# "--port 5000"]
-
+# CMD ["mlflow", "server", "--port", "5000", "--host", "0.0.0.0"]
