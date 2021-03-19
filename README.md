@@ -1,39 +1,11 @@
 # MLOps
-Cloud agnostic tech stack for an MLOps platform
+Cloud agnostic tech stack for an MLOps platform (Level 1)
 
 "We'll build a pipeline - after we deploy the model."
 
 ![Wink](docs/wink.gif)
 
 ```Model drift will hit when it's least convenient for you```
-
-# TODOs
-Docker Compose:
-- [x] Install & Configure Airflow 2.0 service
-- [x] Write dummy retrain DAG
-- [x] Test stable Airflow REST API from postman
-- [x] Configure MLFlow connection to postgresql
-  - [x] mlflowdb is NOT getting created on postgresql start up
-- [x] Create bridge "server" to POST to Airflow rest API, simple flask app will work
-- [x] Prometheus integration with FastAPI for service metrics
-  - [x] Config scrape intervals and metrics
-- [x] RabbitMQ for distributed tasks
-- [x] RabbitMQ workers to pull from queue and write to InfluxDB
-- [x] InfluxDB to record features and predictions
-- [x] Locust for load testing and simulating production traffic
-- [ ] Google Feast Feature Store started
-- [ ] Amundsen for Feast UI?
-- [x] ML Monitoring
-    - [x] Create Grafana dashboard:
-        - [x] Model specific metrics
-          - [x] Feature distributions (InfluxDB)
-          - [x] Predictions (InfluxDB)
-        - [x] RabbitMQ queue depth (Prometheus)
-        - [x] Service metrics
-          - [x] Request Latency (Prometheus)
-          - [x] Request Throughput (Prometheus)
-  - [x] Webhook on alarm condition POST to bridge server
-- [ ] K8S Deployment
 
 
 __To run__:
@@ -58,7 +30,26 @@ Make sure docker is running and you have [Docker Compose](https://docs.docker.co
     ```bash
     docker-compose pull && docker-compose up
     ```
-5. Send a POST request to our model service API endpoint
+5. Open a browser and log in to [MinIO](http://localhost:9090)
+
+    user: _minioadmin_
+
+    password : _minioadmin_
+
+    Create a bucket called ```mlflow```
+6. Open a browser and log in to [Grafana](http://localhost:3000)
+
+    user: _admin_
+
+    password : _admin_
+7. Add a datasource for Prometheus
+8. Add a data source for InfluxDB
+9. Create an Alarm Notification channel
+10. Import the MLOps Demo Dashhboard
+11. Add alarms to panels 
+12. Start the ```send_data.py``` script
+
+6. Send a POST request to our model service API endpoint
     ```bash
     curl -v -H "Content-Type: application/json" -X POST -d
     '{
@@ -98,7 +89,6 @@ Make sure docker is running and you have [Docker Compose](https://docs.docker.co
 - grafana: Performance Monitoring
 - redis: Cache
 - airflow: Workflow Orchestrator
-- feast: Feature Store
 - bridge server: Receives webhook from Grafana and translates to Airflow REST API
 
 If you found this repo helpful, a [small donation](https://www.buymeacoffee.com/VlduzAG) would be greatly appreciated. 

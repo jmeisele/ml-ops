@@ -61,7 +61,7 @@
           {
             "evaluator": {
               "params": [
-                2050157
+                1449
               ],
               "type": "gt"
             },
@@ -104,6 +104,12 @@
           },
           {
             "uid": "xKmdJ1UGz"
+          },
+          {
+            "uid": "CrntrPUGz"
+          },
+          {
+            "uid": "suUYIHwMk"
           }
         ]
       },
@@ -166,7 +172,7 @@
           "measurement": "predicted_house_price",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT mean(\"median_house_value\") FROM \"autogen\".\"predicted_house_price\" WHERE (\"model\" = 'A') AND $timeFilter GROUP BY time($__interval) fill(null)",
+          "query": "SELECT sqrt(mean(\"median_house_value\")) FROM \"autogen\".\"predicted_house_price\" WHERE (\"model\" = 'A') AND $timeFilter GROUP BY time($__interval) fill(null)",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -211,6 +217,8 @@
           "measurement": "predicted_house_price",
           "orderByTime": "ASC",
           "policy": "autogen",
+          "query": "SELECT sqrt(mean(\"median_house_value\")) FROM \"autogen\".\"predicted_house_price\" WHERE (\"model\" = 'B') AND $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
@@ -242,13 +250,13 @@
           "fill": true,
           "line": true,
           "op": "gt",
-          "value": 2050157
+          "value": 1449
         }
       ],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Prediction Monitoring",
+      "title": "Model Error Monitoring",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -292,7 +300,7 @@
           {
             "evaluator": {
               "params": [
-                10
+                4
               ],
               "type": "gt"
             },
@@ -332,6 +340,12 @@
           },
           {
             "uid": "xKmdJ1UGz"
+          },
+          {
+            "uid": "CrntrPUGz"
+          },
+          {
+            "uid": "suUYIHwMk"
           }
         ]
       },
@@ -419,7 +433,7 @@
           "fill": true,
           "line": true,
           "op": "gt",
-          "value": 10
+          "value": 4
         }
       ],
       "timeFrom": null,
@@ -509,6 +523,12 @@
           },
           {
             "uid": "xKmdJ1UGz"
+          },
+          {
+            "uid": "CrntrPUGz"
+          },
+          {
+            "uid": "suUYIHwMk"
           }
         ]
       },
@@ -683,6 +703,12 @@
           },
           {
             "uid": "xKmdJ1UGz"
+          },
+          {
+            "uid": "CrntrPUGz"
+          },
+          {
+            "uid": "suUYIHwMk"
           }
         ]
       },
@@ -1028,6 +1054,10 @@
           "expr": "sum(rate(fastapi_model_http_requests_total{status=\"4xx\"}[1m]))",
           "legendFormat": "{status=\"4xx\"}",
           "refId": "B"
+        },
+        {
+          "expr": "sum(rate(fastapi_model_http_requests_total{status=\"5xx\"}[1m]))",
+          "refId": "C"
         }
       ],
       "thresholds": [],
@@ -1184,5 +1214,5 @@
   "timezone": "",
   "title": "MLOps Demo",
   "uid": "0WqvRlsGz",
-  "version": 9
+  "version": 3
 }

@@ -1,7 +1,6 @@
 version: "3.4"
 x-airflow-common:
   &airflow-common
-#   image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:2.0.1}
   build: ./airflow
   environment:
     &airflow-common-env
@@ -124,13 +123,11 @@ services:
         depends_on:
             - rabbitmq
         build: ./workers
-        # command: ["./workers/wait_for_rabbitmq.sh", "rabbitmq:5672", "--", "python3", "app.py"]
         restart: always
 
     mlflow:
         container_name: mlflow-server
         depends_on:
-            # - postgres
             - minio
         build: ./mlflow
         environment:
@@ -140,7 +137,6 @@ services:
         ports: 
             - "5000:5000"
         command: 
-            # mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root file://mlflow/artifacts --host 0.0.0.0 -p 5000
             mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root s3://mlflow --host 0.0.0.0 -p 5000
         restart: always
     
@@ -169,17 +165,17 @@ services:
             - ./influxdb/influxdb.env
         restart: always
 
-    # chronograf:
-    #     container_name: chronograf
-    #     image: chronograf:1.8.4-alpine
-    #     depends_on:
-    #         - influxdb
-    #     user: "0"
-    #     ports:
-    #         - 8888:8888
-    #     env_file:
-    #         - ./chronograf/chronograf.env
-    #     restart: always
+    chronograf:
+        container_name: chronograf
+        image: chronograf:1.8.4-alpine
+        depends_on:
+            - influxdb
+        user: "0"
+        ports:
+            - 8888:8888
+        env_file:
+            - ./chronograf/chronograf.env
+        restart: always
 
     grafana:
         container_name: grafana
@@ -212,7 +208,6 @@ services:
           - "8089:8089"
         restart: always
 
-    # Airflow Workflow Orchestrator
     airflow-webserver:
         <<: *airflow-common
         command: webserver
@@ -261,82 +256,6 @@ services:
         command: celery flower
         restart: always
     
-    # Google Feast Feature Store
-    # feast-core:
-    #     image: gcr.io/kf-feast/feast-core:${FEAST_VERSION}
-    #     volumes:
-    #         - ${FEAST_CORE_CONFIG}:/etc/feast/application.yml
-    #     environment:
-    #         DB_HOST: postgres
-    #     restart: on-failure
-    #     depends_on:
-    #         - postgres
-    #     ports:
-    #         - 6565:6565
-    #     command:
-    #         - java
-    #         - -jar
-    #         - /opt/feast/feast-core.jar
-    #         - --spring.config.location=classpath:/application.yml,file:/etc/feast/application.yml
-    
-    # feast-online-serving:
-    #     image: gcr.io/kf-feast/feast-serving:${FEAST_VERSION}
-    #     volumes:
-    #         - ${FEAST_ONLINE_SERVING_CONFIG}:/etc/feast/application.yml
-    #     depends_on:
-    #         - feast-core
-    #         - redis
-    #     ports:
-    #         - 6566:6566
-    #     restart: on-failure
-    #     command:
-    #         - java
-    #         - -jar
-    #         - /opt/feast/feast-serving.jar
-    #         - --spring.config.location=classpath:/application.yml,file:/etc/feast/application.yml
-    
-    # feast-jobservice:
-    #     image: gcr.io/kf-feast/feast-jobservice:${FEAST_VERSION}
-    #     depends_on:
-    #         - feast-core
-    #     ports:
-    #         - 6568:6568
-    #     volumes:
-    #         - $PWD:/shared
-    #     environment:
-    #         FEAST_CORE_URL: feast-core:6565
-    #         FEAST_SERVING_URL: feast-online-serving:6566
-    #         FEAST_SPARK_LAUNCHER: standalone
-    #         FEAST_SPARK_STANDALONE_MASTER: local
-    #         FEAST_SPARK_HOME: /usr/local/spark
-    #         FEAST_SPARK_STAGING_LOCATION: file:///shared/staging
-    #         FEAST_HISTORICAL_FEATURE_OUTPUT_LOCATION: file:///shared/historical_feature_output
-    #         FEAST_HISTORICAL_FEATURE_OUTPUT_FORMAT: parquet
-    #         FEAST_REDIS_HOST: redis
-    #         FEAST_SPARK_INGESTION_JAR: ${INGESTION_JAR_PATH}
-    #         FEAST_STATSD_ENABLED: "true"
-    #         FEAST_STATSD_HOST: prometheus_statsd
-    #         FEAST_STATSD_PORT: 9125
-
-    ##############################
-
-    # postgres:
-    #     container_name: postgres
-    #     build: ./postgres
-    #     env_file:
-    #         - ./postgres/postgres.env
-    #     ports:
-    #         - 5432:5432
-        # volumes:
-        #         - ./volumes/postgres/data:/var/lib/postgresql/data
-                # - postgres-db-volume:/var/lib/postgresql/data
-        # healthcheck:
-        #     test: ["CMD", "pg_isready", "-U", "airflow"]
-        #     interval: 5s
-        #     retries: 5
-        # restart: always
-
-
 volumes:
   postgres-db-volume:
   data:
