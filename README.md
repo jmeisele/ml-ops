@@ -23,11 +23,6 @@ Make sure docker is running and you have [Docker Compose](https://docs.docker.co
     ```bash
     docker-compose up airflow-init
     ```
-    user: _airflow_
-
-    password : _airflow_
-
-    ![Airflow](docs/airflow_login.gif)
 
 4. Build our images and launch with docker compose
     ```bash
@@ -49,14 +44,14 @@ Make sure docker is running and you have [Docker Compose](https://docs.docker.co
     password : _admin_
 
     ![Grafana](docs/grafana_login.gif)
-7. Add the Prometheus data source```http://prometheus:9090```
+7. Add the Prometheus data source
 
-    URL: _http://prometheus:9090_
+    URL: ```http://prometheus:9090```
 
     ![Prometheus](docs/prometheus.gif)
-8. Add the InfluxDB data source```http://influxdb:8086```
+8. Add the InfluxDB data source
 
-    URL: _http://influxdb:8086_
+    URL: ```http://influxdb:8086```
     
     Basic Auth
     
@@ -77,16 +72,24 @@ Make sure docker is running and you have [Docker Compose](https://docs.docker.co
     
     ![Alarm_Channel](docs/alarm_channel.gif)
 
-11. Add alarms to panels 
+11. Add the alarm channel to some panels 
     ![Panels](docs/alarms_to_panels.gif)
     
 12. Start the ```send_data.py``` script which sends a POST request every 0.1 seconds
 
-13. Lower the alarm threshold to see the Airflow DAG pipeline get triggered
+13. Open a browser and turn on the Airflow DAG used to retrain our ML model
 
-14. Check MLFlow after the Airflow DAG has run to see the model artifacts stored using MinIO as the object storage layer.
+    user: _airflow_
 
-15. (Optional) Send a POST request to our model service API endpoint
+    password : _airflow_
+
+  ![Airflow](docs/airflow_login.gif)
+
+14. Lower the alarm threshold to see the Airflow DAG pipeline get triggered
+
+15. Check [MLFlow](http://localhost:5000) after the Airflow DAG has run to see the model artifacts stored using MinIO as the object storage layer.
+
+16. (Optional) Send a POST request to our model service API endpoint
     ```bash
     curl -v -H "Content-Type: application/json" -X POST -d
     '{
