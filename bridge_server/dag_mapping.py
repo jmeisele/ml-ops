@@ -6,5 +6,5 @@ Scope: Map of DAGs to push POST requests to Airflow from Grafana
 """
 
 dag_config_map = {
-    "Predicted Housing Values alert": "example_ml_retrain"
+    "Model Error Monitoring alert": "python_example_ml_retrain"
 }

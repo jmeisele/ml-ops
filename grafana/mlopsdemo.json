@@ -87,7 +87,7 @@
         "frequency": "1m",
         "handler": 1,
         "message": "This is coming from Grafana",
-        "name": "Predicted Housing Values alert",
+        "name": "Model Error Monitoring alert",
         "noDataState": "alerting",
         "notifications": [
           {
@@ -110,6 +110,9 @@
           },
           {
             "uid": "suUYIHwMk"
+          },
+          {
+            "uid": "6IXcGAwGk"
           }
         ]
       },
