@@ -86,6 +86,8 @@ Make sure docker is running and you have [Docker Compose](https://docs.docker.co
   ![Airflow](docs/airflow_login.gif)
 
 14. Lower the alarm threshold to see the Airflow DAG pipeline get triggered
+  
+  ![Threshold](docs/lower_threshold.gif)
 
 15. Check [MLFlow](http://localhost:5000) after the Airflow DAG has run to see the model artifacts stored using MinIO as the object storage layer.
 
