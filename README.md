@@ -26,6 +26,9 @@ Make sure docker is running and you have [Docker Compose](https://docs.docker.co
     user: _airflow_
 
     password : _airflow_
+
+    ![Airflow](docs/airflow_login.gif)
+
 4. Build our images and launch with docker compose
     ```bash
     docker-compose pull && docker-compose up
@@ -37,19 +40,53 @@ Make sure docker is running and you have [Docker Compose](https://docs.docker.co
     password : _minioadmin_
 
     Create a bucket called ```mlflow```
+
+    ![MinIO](docs/minio.gif)
 6. Open a browser and log in to [Grafana](http://localhost:3000)
 
     user: _admin_
 
     password : _admin_
-7. Add a datasource for Prometheus
-8. Add a data source for InfluxDB
-9. Create an Alarm Notification channel
-10. Import the MLOps Demo Dashhboard
-11. Add alarms to panels 
-12. Start the ```send_data.py``` script
 
-6. Send a POST request to our model service API endpoint
+    ![Grafana](docs/grafana_login.gif)
+7. Add the Prometheus data source```http://prometheus:9090```
+
+    URL: _http://prometheus:9090_
+
+    ![Prometheus](docs/prometheus.gif)
+8. Add the InfluxDB data source```http://influxdb:8086```
+
+    URL: _http://influxdb:8086_
+    
+    Basic Auth
+    
+      User: _ml-ops-admin_
+      
+      Password: _ml-ops-pwd_
+      
+      Database: _mlopsdemo_
+
+    ![InfluxDB](docs/influxdb.gif)
+
+9. Import the MLOps Demo Dashhboard from the Grafana directory in this repo
+    ![MLOps_Dashboard](docs/mlopsdashboard.gif)
+
+10. Create an Alarm Notification channel 
+    
+    URL: ```http://bridge_server:8002/route```
+    
+    ![Alarm_Channel](docs/alarm_channel.gif)
+
+11. Add alarms to panels 
+    ![Panels](docs/alarms_to_panels.gif)
+    
+12. Start the ```send_data.py``` script which sends a POST request every 0.1 seconds
+
+13. Lower the alarm threshold to see the Airflow DAG pipeline get triggered
+
+14. Check MLFlow after the Airflow DAG has run to see the model artifacts stored using MinIO as the object storage layer.
+
+15. (Optional) Send a POST request to our model service API endpoint
     ```bash
     curl -v -H "Content-Type: application/json" -X POST -d
     '{
@@ -64,10 +101,9 @@ Make sure docker is running and you have [Docker Compose](https://docs.docker.co
     }'  
     http://localhost/model/predict
     ```
-6. You can also start the utility ```send_data.py``` which sends a POST request every 0.1 seconds
-7. If you are so bold, you can also simluate production traffic using locust, __but__ keep in mind you have a lot of services running on your local machine, you would never deploy a production ML API on your local machine to handle production traffic. 
+16. (Optional) If you are so bold, you can also simluate production traffic using locust, __but__ keep in mind you have a lot of services running on your local machine, you would never deploy a production ML API on your local machine to handle production traffic. 
 
-## Platform Architecture
+## Level 1 Workflow & Platform Architecture
 ![MLOps](docs/mlops_level1.drawio.svg)
 
 ## Model Serving Architecture
@@ -90,9 +126,6 @@ Make sure docker is running and you have [Docker Compose](https://docs.docker.co
 - redis: Cache
 - airflow: Workflow Orchestrator
 - bridge server: Receives webhook from Grafana and translates to Airflow REST API
-
-If you found this repo helpful, a [small donation](https://www.buymeacoffee.com/VlduzAG) would be greatly appreciated. 
-All proceeds go towards coffee, and all coffee goes towards more code.
 
 ## gotchas:
 
