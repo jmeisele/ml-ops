@@ -1,5 +1,5 @@
 # MLOps
-Cloud agnostic tech stack for an MLOps platform (Level 1)
+Cloud agnostic tech stack for starting an MLOps platform (Level 1)
 
 "We'll build a pipeline - after we deploy the model."
 
