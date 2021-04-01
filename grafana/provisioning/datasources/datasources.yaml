@@ -1,0 +1,29 @@
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    orgId: 1
+    url: http://prometheus:9090
+    basicAuth: False
+    isDefault: True
+    jsonData: 
+        httpMethod: GET
+        keepCookies: []
+    readOnly: false
+  - name: InfluxDB
+    type: influxdb
+    access: proxy
+    orgId: 1
+    url: http://influxdb:8086
+    basicAuth: True
+    isDefault: False
+    user: grafana
+    database: mlopsdemo
+    secureJsonData:
+      basicAuthPassword: grafana
+    jsonData: 
+        httpMethod: GET
+        keepCookies: []
+    readOnly: false

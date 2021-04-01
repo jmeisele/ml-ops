@@ -44,40 +44,15 @@ Make sure docker is running and you have [Docker Compose](https://docs.docker.co
     password : _admin_
 
     ![Grafana](docs/grafana_login.gif)
-7. Add the Prometheus data source
-
-    URL: ```http://prometheus:9090```
-
-    ![Prometheus](docs/prometheus.gif)
-8. Add the InfluxDB data source
-
-    URL: ```http://influxdb:8086```
     
-    Basic Auth
-    
-      User: _ml-ops-admin_
-      
-      Password: _ml-ops-pwd_
-      
-      Database: _mlopsdemo_
+    _Both Promethus and InfluxDB data sources have already been provisioned along with an MLOps Demo Dashboard and a Notification Channel._
 
-    ![InfluxDB](docs/influxdb.gif)
-
-9. Import the MLOps Demo Dashhboard from the Grafana directory in this repo
-    ![MLOps_Dashboard](docs/mlopsdashboard.gif)
-
-10. Create an Alarm Notification channel 
-    
-    URL: ```http://bridge_server:8002/route```
-    
-    ![Alarm_Channel](docs/alarm_channel.gif)
-
-11. Add the alarm channel to some panels 
+7. Add the notification channel to some panels 
     ![Panels](docs/alarms_to_panels.gif)
     
-12. Start the ```send_data.py``` script which sends a POST request every 0.1 seconds
+8. Start the ```send_data.py``` script which sends a POST request every 0.1 seconds
 
-13. Open a browser and turn on the Airflow DAG used to retrain our ML model
+9. Open a browser and turn on the Airflow DAG used to retrain our ML model
 
     user: _airflow_
 
@@ -85,13 +60,13 @@ Make sure docker is running and you have [Docker Compose](https://docs.docker.co
 
   ![Airflow](docs/airflow_login.gif)
 
-14. Lower the alarm threshold to see the Airflow DAG pipeline get triggered
+10. Lower the alarm threshold to see the Airflow DAG pipeline get triggered
   
   ![Threshold](docs/lower_threshold.gif)
 
-15. Check [MLFlow](http://localhost:5000) after the Airflow DAG has run to see the model artifacts stored using MinIO as the object storage layer.
+11. Check [MLFlow](http://localhost:5000) after the Airflow DAG has run to see the model artifacts stored using MinIO as the object storage layer.
 
-16. (Optional) Send a POST request to our model service API endpoint
+12. (Optional) Send a POST request to our model service API endpoint
     ```bash
     curl -v -H "Content-Type: application/json" -X POST -d
     '{
@@ -106,7 +81,7 @@ Make sure docker is running and you have [Docker Compose](https://docs.docker.co
     }'  
     http://localhost/model/predict
     ```
-16. (Optional) If you are so bold, you can also simluate production traffic using locust, __but__ keep in mind you have a lot of services running on your local machine, you would never deploy a production ML API on your local machine to handle production traffic. 
+13. (Optional) If you are so bold, you can also simluate production traffic using locust, __but__ keep in mind you have a lot of services running on your local machine, you would never deploy a production ML API on your local machine to handle production traffic. 
 
 ## Level 1 Workflow & Platform Architecture
 ![MLOps](docs/mlops_level1.drawio.svg)

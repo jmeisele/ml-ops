@@ -66,12 +66,12 @@ services:
     
     bridge-server:
         container_name: bridge_server
-        build: ./bridge_server
+        build: ./bridge-server
         ports:
             - "8002:8002"
         volumes:
-            - ./bridge_server/app.py:/app/app.py
-            - ./bridge_server/dag_mapping.py:/app/dag_mapping.py
+            - ./bridge-server/app.py:/app/app.py
+            - ./bridge-server/dag_mapping.py:/app/dag_mapping.py
         restart: always
     
     postgres:
@@ -182,11 +182,16 @@ services:
         image: grafana/grafana:6.3.6
         depends_on:
             - influxdb
+            - prometheus
         user: "0"
         ports:
             - 3000:3000
         env_file:
             - ./grafana/grafana.env
+        volumes:
+            - ./grafana/provisioning/datasources/:/etc/grafana/provisioning/datasources/
+            - ./grafana/provisioning/dashboards/:/etc/grafana/provisioning/dashboards/
+            - ./grafana/provisioning/notifiers/:/etc/grafana/provisioning/notifiers/
         restart: always
     
     redis:
