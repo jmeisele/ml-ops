@@ -1,0 +1,17 @@
+apiVersion: 1
+
+notifiers:
+  - name: bridge_server
+    type: webhook
+    uid: YjZxbIlGk
+    org_id: 1
+    isDefault: false
+    sendReminder: false
+    disableResolveMessage: false
+    settings:
+      autoResolve: true
+      httpMethod: POST
+      uploadImage: false
+      url: http://bridge_server:8002/route
+
+

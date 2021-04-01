@@ -1,0 +1,58 @@
+[
+    {
+        "id": 2,
+        "dashboardId": 1,
+        "dashboardUid": "0WqvRlsGz",
+        "dashboardSlug": "mlops-demo",
+        "panelId": 4,
+        "name": "Feature A Monitoring alert",
+        "state": "ok",
+        "newStateDate": "2021-03-31T19:00:15Z",
+        "evalDate": "0001-01-01T00:00:00Z",
+        "evalData": {},
+        "executionError": "",
+        "url": "/d/0WqvRlsGz/mlops-demo"
+    },
+    {
+        "id": 3,
+        "dashboardId": 1,
+        "dashboardUid": "0WqvRlsGz",
+        "dashboardSlug": "mlops-demo",
+        "panelId": 6,
+        "name": "Feature B Monitoring alert",
+        "state": "ok",
+        "newStateDate": "2021-03-31T18:59:30Z",
+        "evalDate": "0001-01-01T00:00:00Z",
+        "evalData": {},
+        "executionError": "",
+        "url": "/d/0WqvRlsGz/mlops-demo"
+    },
+    {
+        "id": 4,
+        "dashboardId": 1,
+        "dashboardUid": "0WqvRlsGz",
+        "dashboardSlug": "mlops-demo",
+        "panelId": 7,
+        "name": "Feature C Monitoring alert",
+        "state": "ok",
+        "newStateDate": "2021-03-31T18:59:15Z",
+        "evalDate": "0001-01-01T00:00:00Z",
+        "evalData": {},
+        "executionError": "",
+        "url": "/d/0WqvRlsGz/mlops-demo"
+    },
+    {
+        "id": 1,
+        "dashboardId": 1,
+        "dashboardUid": "0WqvRlsGz",
+        "dashboardSlug": "mlops-demo",
+        "panelId": 2,
+        "name": "Model Error Monitoring alert",
+        "state": "ok",
+        "newStateDate": "2021-03-31T18:59:01Z",
+        "evalDate": "0001-01-01T00:00:00Z",
+        "evalData": {},
+        "executionError": "",
+        "url": "/d/0WqvRlsGz/mlops-demo"
+    }
+]
