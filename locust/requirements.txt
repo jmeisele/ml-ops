@@ -25,7 +25,7 @@ scikit-learn==0.24.1
 scipy==1.6.1
 six==1.15.0
 threadpoolctl==2.1.0
-urllib3==1.26.4
+urllib3==1.26.5
 Werkzeug==1.0.1
 zope.event==4.5.0
 zope.interface==5.2.0
