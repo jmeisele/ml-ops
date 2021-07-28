@@ -15,6 +15,7 @@ import pandas as pd
 import mlflow
 import numpy as np
 from mlflow import log_metric, log_param, log_artifacts
+from boxkite.monitoring.service import ModelMonitoringService
 # from mlflow.sklearn import save_model
 
 
@@ -77,6 +78,8 @@ def prep_data():
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42
     )
+    with open("X.pkl", "wb") as file:
+        pickle.dump(X, file)
     with open("X_train.pkl", "wb") as file:
         pickle.dump(X_train, file)
     with open("X_test.pkl", "wb") as file:
@@ -121,6 +124,9 @@ def evaluate_model():
 
 
 def validate_model():
+    with open("X.pkl", "rb") as file:
+        X = pickle.load(file)
+
     with open("model.pkl", "rb") as f:
         model = pickle.load(f)
 
@@ -145,6 +151,16 @@ def validate_model():
     mlflow.log_metric("testing_median_error", holdout_med)
     mlflow.log_metric("testing_r2_score", holdout_r2)
 
+    # Log our training and inference distributions
+    features = X.iteritems()
+    inference = list(y_pred_test)
+
+    ModelMonitoringService.export_text(
+        features=features,
+        inference=inference,
+        path="./histogram.prom",
+    )
+    mlflow.log_artifact("./histogram.prom")
     mlflow.end_run()
     return "Even performs great on new data"
 
