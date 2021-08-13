@@ -77,7 +77,7 @@ def plot_summary(df1, df2):
     ax.axvline(x='2019-07-19', linewidth=1, linestyle='--', alpha=0.3)
     ax.axvline(x='2019-08-04', linewidth=1, linestyle='--', alpha=0.3)
     ax.axvline(x='2019-08-12', linewidth=1, linestyle='--', alpha=0.0)
-    
+
     ax.text(mdates.date2num(dt.datetime(2019, 7, 1)), 85, '1st model train data', fontsize=9, alpha=0.5)
     ax.text(mdates.date2num(dt.datetime(2019, 7, 11)), 85, '1st model inference', fontsize=9, alpha=0.5)
     ax.text(mdates.date2num(dt.datetime(2019, 7, 21)), 85, '2nd model learnt and applied', fontsize=9, alpha=0.5)
@@ -94,7 +94,7 @@ def plot_summary(df1, df2):
         color='green', alpha=0.1, ec='red'
     )
     ax.add_patch(rect)
-    
+
     ax.xaxis.set_major_locator(mdates.WeekdayLocator())
 
     fig.tight_layout()
