@@ -60,7 +60,7 @@ parso==0.8.1
 pexpect==4.8.0
 phik==0.11.2
 pickleshare==0.7.5
-Pillow==8.1.2
+Pillow==8.3.2
 prometheus-client
 prometheus-flask-exporter==0.18.1
 prompt-toolkit==3.0.17
