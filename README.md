@@ -112,3 +112,11 @@ Make sure docker is running and you have [Docker Compose](https://docs.docker.co
 ### Postgres:
 
 _Warning: scripts in /docker-entrypoint-initdb.d are only run if you start the container with a data directory that is empty; any pre-existing database will be left untouched on container startup._
+
+## ✨ Contributors
+
+Thanks goes to these incredible people:
+
+<a href="https://github.com/jmeisele/ml-ops/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=jmeisele/ml-ops" />
+</a>
