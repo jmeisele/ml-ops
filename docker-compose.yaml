@@ -13,8 +13,10 @@ x-airflow-common:
     AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres/airflow
     AIRFLOW__CELERY__BROKER_URL: redis://:@redis:6379/0
     MLFLOW_S3_ENDPOINT_URL: http://minio:9000
-    AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-    AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+    # AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+    AWS_ACCESS_KEY_ID: minioadmin
+    # AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+    AWS_SECRET_ACCESS_KEY: minioadmin
   volumes:
     - ./airflow/dags:/opt/airflow/dags
     - ./airflow/logs:/opt/airflow/logs
@@ -132,8 +134,10 @@ services:
         build: ./mlflow
         environment:
             MLFLOW_S3_ENDPOINT_URL: http://minio:9000
-            AWS_ACCESS_KEY_ID:  ${AWS_ACCESS_KEY_ID}
-            AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+            # AWS_ACCESS_KEY_ID:  ${AWS_ACCESS_KEY_ID}
+            # AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+            AWS_ACCESS_KEY_ID:  minioadmin
+            AWS_SECRET_ACCESS_KEY: minioadmin
         ports: 
             - "5000:5000"
         command:
@@ -147,26 +151,29 @@ services:
           - "9000:9000"
           - "9001:9001"
         environment:
-            AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-            AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+            # AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+            # AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+            AWS_ACCESS_KEY_ID: minioadmin
+            AWS_SECRET_ACCESS_KEY: minioadmin
         volumes:
             - data:/data
         command:
             server /data --address ':9000' --console-address ":9001"
         restart: always
 
-    createbuckets:
-        image: minio/mc
-        depends_on:
-            - minio
-        entrypoint: >
-            /bin/sh -c "
-            /usr/bin/mc config host add mlops http://minio:9000 ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY};
-            /usr/bin/mc rm -r --force mlops/mlflow;
-            /usr/bin/mc mb mlops/mlflow;
-            /usr/bin/mc policy set download mlops/mlflow;
-            exit 0;
-            "
+    # createbuckets:
+    #     image: minio/mc
+    #     depends_on:
+    #         - minio
+    #     entrypoint: >
+    #         /bin/sh -c "
+    #         # /usr/bin/mc config host add mlops http://minio:9000 ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY};
+    #         /usr/bin/mc config host add mlops http://minio:9000 minioadmin minioadmin;
+    #         /usr/bin/mc rm -r --force mlops/mlflow;
+    #         /usr/bin/mc mb mlops/mlflow;
+    #         /usr/bin/mc policy set download mlops/mlflow;
+    #         exit 0;
+    #         "
 
     influxdb:
         container_name: influxdb
