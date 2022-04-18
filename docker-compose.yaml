@@ -145,13 +145,14 @@ services:
         image: minio/minio
         ports:
           - "9000:9000"
+          - "9001:9001"
         environment:
             AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
             AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
         volumes:
             - data:/data
         command:
-            server /data
+            server /data --address ':9000' --console-address ":9001"
         restart: always
 
     createbuckets:
