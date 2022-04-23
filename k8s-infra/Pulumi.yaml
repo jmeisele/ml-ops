@@ -1,3 +1,0 @@
-name: k8s-infra
-runtime: python
-description: ml-platform on K8S

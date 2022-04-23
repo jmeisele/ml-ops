@@ -30,8 +30,8 @@ dag = DAG(
     default_args=default_args,
     start_date=days_ago(2),
     # schedule_interval=timedelta(days=1),
-    # on_success_callback=some_function(),
-    # on_failure_callback=some_other_function(),
+    # on_success_callback=some_function,
+    # on_failure_callback=some_other_function,
 )
 
 
