@@ -44,7 +44,7 @@ MarkupSafe==1.1.1
 matplotlib==3.3.4
 missingno==0.4.2
 mistune==0.8.4
-mlflow==1.14.1
+mlflow==1.23.1
 nbclient==0.5.3
 nbconvert==6.0.7
 nbformat==5.1.2
