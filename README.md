@@ -1,68 +1,69 @@
 # MLOps
+
 Cloud agnostic tech stack for starting an MLOps platform (Level 1)
 
 "We'll build a pipeline - after we deploy the model."
 
 ![Wink](docs/wink.gif)
 
-```Model drift will hit when it's least convenient for you```
+`Model drift will hit when it's least convenient for you`
 
-
-__To run__:
-Make sure docker is running and you have [Docker Compose](https://docs.docker.com/compose/install/) installed. 
+**To run**:
+Make sure docker is running and you have [Docker Compose](https://docs.docker.com/compose/install/) installed.
 
 1. Clone the project
-    ```bash
-    git clone https://github.com/jmeisele/ml-ops.git
-    ```
+   ```bash
+   git clone https://github.com/jmeisele/ml-ops.git
+   ```
 2. Change directories into the repo
-    ```bash
-    cd ml-ops
-    ```
+   ```bash
+   cd ml-ops
+   ```
 3. Run database migrations and create the first Airflow user account.
-    ```bash
-    docker-compose up airflow-init
-    ```
+
+   ```bash
+   docker-compose up airflow-init
+   ```
 
 4. Build our images and launch with docker compose
-    ```bash
-    docker-compose pull && docker-compose up
-    ```
-5. Open a browser and log in to [MinIO](http://localhost:9090)
+   ```bash
+   docker-compose pull && docker-compose up
+   ```
+5. Open a browser and log in to [MinIO](http://localhost:9001)
 
-    user: _minioadmin_
+   user: _minioadmin_
 
-    password : _minioadmin_
+   password : _minioadmin_
 
-    Create a bucket called ```mlflow```
+   Create a bucket called `mlflow`
 
-    ![MinIO](docs/minio.gif)
+   ![MinIO](docs/minio.gif)
+
 6. Open a browser and log in to [Grafana](http://localhost:3000)
 
-    user: _admin_
+   user: _admin_
 
-    password : _admin_
+   password : _admin_
 
-    ![Grafana](docs/grafana_login.gif)
-    
-    _Both Promethus and InfluxDB data sources have already been provisioned along with an MLOps Demo Dashboard and a Notification Channel._
+   ![Grafana](docs/grafana_login.gif)
 
-7. Add the notification channel to some panels 
-    ![Panels](docs/alarms_to_panels.gif)
-    
-8. Start the ```send_data.py``` script which sends a POST request every 0.1 seconds
+   _Both Promethus and InfluxDB data sources have already been provisioned along with an MLOps Demo Dashboard and a Notification Channel._
+
+7. Add the notification channel to some panels
+   ![Panels](docs/alarms_to_panels.gif)
+8. Start the `send_data.py` script which sends a POST request every 0.1 seconds
 
 9. Open a browser and turn on the Airflow DAG used to retrain our ML model
 
-    user: _airflow_
+   user: _airflow_
 
-    password : _airflow_
+   password : _airflow_
 
-  ![Airflow](docs/airflow_login.gif)
+![Airflow](docs/airflow_login.gif)
 
 10. Lower the alarm threshold to see the Airflow DAG pipeline get triggered
-  
-  ![Threshold](docs/lower_threshold.gif)
+
+![Threshold](docs/lower_threshold.gif)
 
 11. Check [MLFlow](http://localhost:5000) after the Airflow DAG has run to see the model artifacts stored using MinIO as the object storage layer.
 
@@ -78,18 +79,21 @@ Make sure docker is running and you have [Docker Compose](https://docs.docker.co
         "average_house_occupancy": 2.55,
         "block_latitude": 37.88,
         "block_longitude": -122.23
-    }'  
+    }'
     http://localhost/model/predict
     ```
-13. (Optional) If you are so bold, you can also simluate production traffic using locust, __but__ keep in mind you have a lot of services running on your local machine, you would never deploy a production ML API on your local machine to handle production traffic. 
+13. (Optional) If you are so bold, you can also simluate production traffic using locust, **but** keep in mind you have a lot of services running on your local machine, you would never deploy a production ML API on your local machine to handle production traffic.
 
 ## Level 1 Workflow & Platform Architecture
+
 ![MLOps](docs/mlops_level1.drawio.svg)
 
 ## Model Serving Architecture
+
 ![API worker architecture](docs/ml_api_architecture.drawio.svg)
 
 ## Services
+
 - nginx: Load Balancer
 - python-model-service1: FastAPI Machine Learning API 1
 - python-model-service2: FastAPI Machine Learning API 2
