@@ -64,7 +64,7 @@ Pillow==9.0.1
 prometheus-client
 prometheus-flask-exporter==0.18.1
 prompt-toolkit==3.0.17
-protobuf==3.15.5
+protobuf==3.18.3
 ptyprocess==0.7.0
 pycparser==2.20
 Pygments==2.8.1
