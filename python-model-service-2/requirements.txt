@@ -2,7 +2,7 @@ click==7.1.2
 fastapi==0.58.0
 h11==0.9.0
 httptools==0.1.1
-joblib==0.15.1
+joblib==1.2.0
 loguru==0.5.1
 numpy==1.19.0
 pika==1.1.0
